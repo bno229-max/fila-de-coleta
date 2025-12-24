@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fila de Coleta 🛵</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .color-ifood { color: #ea1d2c; border-color: #ea1d2c; }
+        .bg-ifood { background-color: #ea1d2c; }
+        .color-rappi { color: #ff441f; border-color: #ff441f; }
+        .bg-rappi { background-color: #ff441f; }
+        .color-99food { color: #ffc107; border-color: #ffc107; }
+        .bg-99food { background-color: #ffc107; }
+        .color-keeta { color: #004d40; border-color: #004d40; }
+        .bg-keeta { background-color: #004d40; }
+        .color-lalamove { color: #f60; border-color: #f60; }
+        .bg-lalamove { background-color: #f60; }
+        .color-ubereats { color: #000; border-color: #000; }
+        .bg-ubereats { background-color: #000; }
+
+        .btn-brand { border-width: 2px; transition: all 0.2s; cursor: pointer; }
+        .btn-brand.active { color: white !important; }
+
+        @keyframes pulse-green {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.7); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(22, 163, 74, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(22, 163, 74, 0); }
+        }
+        .animate-pulse-btn { animation: pulse-green 1.5s infinite; }
+
+        @media print { .no-print { display: none; } .print-only { display: block !important; } }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen pb-10">
+
+    <nav class="bg-white sticky top-0 z-50 border-b border-slate-200 px-4 py-3 flex justify-between items-center shadow-sm no-print">
+        <div class="flex items-center gap-2">
+            <span class="text-2xl">🛵</span>
+            <span class="font-extrabold text-xl tracking-tighter text-slate-800 uppercase">Fila de<span class="text-green-600">Coleta</span></span>
+        </div>
+        <div class="flex gap-1 bg-slate-100 p-1 rounded-full text-[10px] font-bold">
+            <button onclick="changeView('motoboy')" id="nav-moto" class="px-4 py-2 rounded-full transition bg-green-600 text-white uppercase text-xs">Motoboy</button>
+            <button onclick="changeView('loja')" id="nav-loja" class="px-4 py-2 rounded-full transition text-slate-600 uppercase text-xs">Loja</button>
+        </div>
+    </nav>
+
+    <main id="view-motoboy" class="max-w-md mx-auto p-4 block no-print">
+        <div id="motoboy-form" class="bg-white p-8 rounded-3xl shadow-xl border border-slate-100 mt-4">
+            <div class="space-y-5">
+                <input type="number" id="inputPedido" inputmode="numeric" placeholder="Nº do Pedido" class="w-full bg-slate-50 border-2 border-slate-100 p-4 rounded-2xl text-3xl font-black text-slate-700 outline-none focus:border-green-500">
+                <input type="text" id="inputNome" placeholder="Seu Nome" class="w-full bg-slate-50 border-2 border-slate-100 p-4 rounded-2xl text-xl font-bold text-slate-600 outline-none focus:border-green-500">
+                
+                <div class="grid grid-cols-2 gap-3">
+                    <button onclick="setApp(this, 'iFood')" class="btn-brand color-ifood p-4 rounded-2xl font-bold">iFood</button>
+                    <button onclick="setApp(this, 'Rappi')" class="btn-brand color-rappi p-4 rounded-2xl font-bold">Rappi</button>
+                    <button onclick="setApp(this, '99 Food')" class="btn-brand color-99food p-4 rounded-2xl font-bold">99 Food</button>
+                    <button onclick="setApp(this, 'Keeta')" class="btn-brand color-keeta p-4 rounded-2xl font-bold">Keeta</button>
+                    <button onclick="setApp(this, 'Lalamove')" class="btn-brand color-lalamove p-4 rounded-2xl font-bold">Lalamove</button>
+                    <button onclick="setApp(this, 'Uber Eats')" class="btn-brand color-ubereats p-4 rounded-2xl font-bold">Uber Eats</button>
+                </div>
+            </div>
+            <button onclick="registrarEntrada()" class="w-full mt-10 bg-green-600 text-white font-black py-5 rounded-2xl text-lg shadow-xl uppercase transition active:scale-95">Entrar na Fila</button>
+        </div>
+
+        <div id="motoboy-status" class="hidden py-10">
+            <div class="bg-white p-10 rounded-[2.5rem] shadow-2xl text-center border-4 border-dashed border-slate-200">
+                <h3 id="ticket-pedido" class="text-6xl font-black text-slate-800 mb-2">#0000</h3>
+                <p id="ticket-nome" class="text-xl font-bold text-slate-500 mb-2"></p>
+                <p id="ticket-app" class="font-extrabold uppercase mb-4 text-green-600"></p>
+                <div class="bg-slate-50 rounded-2xl p-4 mb-6">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase">Tempo em Espera</p>
+                    <p id="timer-moto" class="text-3xl font-mono font-bold text-slate-700">00:00</p>
+                </div>
+                <div id="badge-status-moto" class="font-bold text-slate-500 uppercase italic">Aguardando na Fila...</div>
+            </div>
+            <button id="btn-finalizar" onclick="confirmarColetaFinal()" class="hidden w-full mt-8 bg-green-600 text-white font-black py-7 rounded-3xl text-3xl shadow-2xl uppercase animate-pulse-btn">COLETAR</button>
+        </div>
+    </main>
+
+    <main id="view-loja" class="hidden p-6 max-w-7xl mx-auto space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 no-print">
+            <div class="bg-white p-6 rounded-3xl shadow-sm border flex flex-col items-center justify-center">
+                <h3 class="font-black text-slate-800 uppercase text-[10px] mb-3">Check-in Motoboy</h3>
+                <div id="qrcode"></div>
+                <button onclick="window.print()" class="mt-4 text-[10px] bg-slate-100 text-slate-600 font-bold py-2 px-4 rounded-full uppercase">Imprimir QR</button>
+            </div>
+            <div class="md:col-span-3 bg-white p-6 rounded-3xl shadow-sm border">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-black text-slate-800 uppercase text-xs">📊 Volume de Coletas</h3>
+                    <input type="date" id="filtroData" onchange="renderHistoricoRealtime()" class="bg-slate-50 text-xs font-bold rounded-lg p-2 outline-none text-green-600 border">
+                </div>
+                <div id="ranking-container" class="grid grid-cols-3 md:grid-cols-6 gap-3"></div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 no-print">
+            <div class="lg:col-span-2 space-y-4">
+                <h2 class="text-xl font-black text-slate-800 uppercase">Fila de Espera</h2>
+                <div id="lista-loja" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+            </div>
+            <div class="space-y-4">
+                <h2 class="text-xl font-black text-slate-400 uppercase">Últimos Atendidos</h2>
+                <div id="historico-lista" class="space-y-3"></div>
+            </div>
+        </div>
+
+        <div class="hidden print:block print:text-center mt-20">
+            <h1 class="text-5xl font-black mb-10">🛵 FILA DE COLETA</h1>
+            <div id="qrcode-print" class="flex justify-center mb-10"></div>
+            <p class="text-3xl font-bold uppercase">Escaneie para entrar na fila</p>
+        </div>
+    </main>
+
+    <audio id="snd-ready" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3" preload="auto"></audio>
+
+    <script>
+        // ... (Mantive o JavaScript do Firebase igual, apenas troquei os nomes dos botões e textos)
+        const firebaseConfig = {
+            apiKey: "AIzaSyDEm26vnxeQ_f0zUUAMBqgna__hlN1LEtc",
+            authDomain: "fila-correta.firebaseapp.com",
+            databaseURL: "https://fila-correta-default-rtdb.firebaseio.com/",
+            projectId: "fila-correta",
+            storageBucket: "fila-correta.firebasestorage.app",
+            messagingSenderId: "801307181294",
+            appId: "1:801307181294:web:20c5b58afa83a4a80873ff"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        document.getElementById('filtroData').valueAsDate = new Date();
+
+        let appSelecionado = "";
+        let meuIdAtual = null;
+
+        const appStyles = {
+            'iFood': 'color-ifood', 'Rappi': 'color-rappi', '99 Food': 'color-99food',
+            'Keeta': 'color-keeta', 'Lalamove': 'color-lalamove', 'Uber Eats': 'color-ubereats'
+        };
+
+        const appBgs = {
+            'iFood': 'bg-ifood', 'Rappi': 'bg-rappi', '99 Food': 'bg-99food',
+            'Keeta': 'bg-keeta', 'Lalamove': 'bg-lalamove', 'Uber Eats': 'bg-ubereats'
+        };
+
+        function setApp(btn, nome) {
+            document.querySelectorAll('.btn-brand').forEach(b => {
+                b.classList.remove('active', 'bg-ifood', 'bg-rappi', 'bg-99food', 'bg-keeta', 'bg-lalamove', 'bg-ubereats');
+            });
+            appSelecionado = nome;
+            btn.classList.add('active', appBgs[nome]);
+        }
+
+        function changeView(view) {
+            const vMoto = document.getElementById('view-motoboy');
+            const vLoja = document.getElementById('view-loja');
+            if(view === 'loja') {
+                vMoto.style.display = 'none'; vLoja.style.display = 'block';
+                document.getElementById('nav-loja').classList.add('bg-slate-900', 'text-white');
+                document.getElementById('nav-moto').classList.remove('bg-green-600', 'text-white');
+                gerarQRCode(); renderFilaRealtime(); renderHistoricoRealtime();
+            } else {
+                vMoto.style.display = 'block'; vLoja.style.display = 'none';
+                document.getElementById('nav-moto').classList.add('bg-green-600', 'text-white');
+                document.getElementById('nav-loja').classList.remove('bg-slate-900', 'text-white');
+            }
+        }
+
+        function registrarEntrada() {
+            const num = document.getElementById('inputPedido').value;
+            const nome = document.getElementById('inputNome').value;
+            if(!num || !appSelecionado || !nome) return alert("Por favor, preencha o pedido, seu nome e o App!");
+            const id = Date.now();
+            const novo = { id, pedido: num, nome: nome, app: appSelecionado, status: 'preparando', entrada: id, data: new Date().toISOString().split('T')[0] };
+            db.ref('fila/' + id).set(novo);
+            meuIdAtual = id;
+            iniciarTelaEspera();
+        }
+
+        function iniciarTelaEspera() {
+            document.getElementById('motoboy-form').style.display = 'none';
+            document.getElementById('motoboy-status').classList.remove('hidden');
+            db.ref('fila/' + meuIdAtual).on('value', (snap) => {
+                const p = snap.val();
+                if(!p) return;
+                document.getElementById('ticket-pedido').innerText = "#" + p.pedido;
+                document.getElementById('ticket-nome').innerText = p.nome;
+                document.getElementById('ticket-app').innerText = p.app;
+                if(p.status === 'liberado') {
+                    document.getElementById('badge-status-moto').innerText = "✅ COZINHA LIBEROU!";
+                    document.getElementById('btn-finalizar').classList.remove('hidden');
+                    document.getElementById('snd-ready').play().catch(()=>{});
+                }
+            });
+            setInterval(() => {
+                if(meuIdAtual) {
+                    db.ref('fila/' + meuIdAtual).once('value', (snap) => {
+                        const p = snap.val();
+                        if(p) {
+                            const diff = Math.floor((Date.now() - p.entrada) / 1000);
+                            document.getElementById('timer-moto').innerText = `${Math.floor(diff/60).toString().padStart(2,'0')}:${(diff%60).toString().padStart(2,'0')}`;
+                        }
+                    });
+                }
+            }, 1000);
+        }
+
+        function renderFilaRealtime() {
+            db.ref('fila').on('value', (snap) => {
+                const fila = snap.val() ? Object.values(snap.val()) : [];
+                document.getElementById('lista-loja').innerHTML = fila.map(p => `
+                    <div class="bg-white p-6 rounded-3xl shadow-sm border-2 ${appStyles[p.app]} relative">
+                        <button onclick="deletarPedido(${p.id})" class="absolute top-4 right-4 text-slate-200 hover:text-red-500 font-bold text-2xl">×</button>
+                        <span class="text-[9px] font-black uppercase opacity-60">${p.app}</span>
+                        <h3 class="text-3xl font-black text-slate-800">#${p.pedido}</h3>
+                        <p class="text-sm font-bold text-slate-500 mb-4 uppercase italic">${p.nome}</p>
+                        ${p.status === 'preparando' ? `<button onclick="liberarPedidoLoja(${p.id})" class="w-full ${appBgs[p.app]} text-white font-bold py-3 rounded-xl uppercase text-xs">Liberar</button>` : `<div class="bg-slate-100 text-slate-400 py-3 rounded-xl font-bold text-center text-xs uppercase italic">Aguardando Motoboy Coletar</div>`}
+                    </div>`).join('') || '<p class="text-slate-400 font-bold text-xs">Nenhum pedido em espera.</p>';
+            });
+        }
+
+        function renderHistoricoRealtime() {
+            const dataFiltro = document.getElementById('filtroData').value;
+            db.ref('historico').on('value', (snap) => {
+                const hist = snap.val() ? Object.values(snap.val()) : [];
+                const histFiltrado = hist.filter(h => h.data === dataFiltro);
+                const apps = ['iFood', 'Rappi', '99 Food', 'Keeta', 'Lalamove', 'Uber Eats'];
+
+                document.getElementById('ranking-container').innerHTML = apps.map(nome => {
+                    const qtd = histFiltrado.filter(x => x.app === nome).length;
+                    return `<div class="bg-white p-3 rounded-2xl border-2 ${appStyles[nome]} text-center">
+                        <p class="text-[8px] font-black uppercase opacity-70">${nome}</p>
+                        <p class="text-2xl font-black">${qtd}</p>
+                    </div>`;
+                }).join('');
+
+                document.getElementById('historico-lista').innerHTML = histFiltrado.slice(-5).reverse().map(h => `
+                    <div class="bg-white p-3 rounded-2xl border flex justify-between items-center text-xs">
+                        <div><p class="font-black">#${h.pedido} - ${h.nome}</p><p class="text-green-600 font-bold">${h.tempoEspera || '0m'}</p></div>
+                        <span class="bg-slate-100 px-2 py-1 rounded font-bold uppercase text-[8px]">${h.app}</span>
+                    </div>`).join('');
+            });
+        }
+
+        function liberarPedidoLoja(id) { db.ref('fila/' + id).update({ status: 'liberado' }); }
+        function deletarPedido(id) { if(confirm("Deseja remover este pedido?")) db.ref('fila/' + id).remove(); }
+        
+        function confirmarColetaFinal() {
+            db.ref('fila/' + meuIdAtual).once('value', (snap) => {
+                const p = snap.val();
+                if(p) {
+                    const diffMs = Date.now() - p.entrada;
+                    p.tempoEspera = Math.floor(diffMs/60000) + "m " + Math.floor((diffMs%60000)/1000) + "s";
+                    db.ref('historico/' + meuIdAtual).set(p);
+                    db.ref('fila/' + meuIdAtual).remove();
+                }
+                location.reload();
+            });
+        }
+
+        function gerarQRCode() {
+            const url = window.location.href;
+            document.getElementById("qrcode").innerHTML = "";
+            document.getElementById("qrcode-print").innerHTML = "";
+            new QRCode(document.getElementById("qrcode"), { text: url, width: 100, height: 100 });
+            new QRCode(document.getElementById("qrcode-print"), { text: url, width: 450, height: 450 });
+        }
+    </script>
+</body>
+</html>
