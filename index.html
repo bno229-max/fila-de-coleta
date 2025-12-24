@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fila Digital SaaS - Oficial</title>
+    <title>Fila Digital SaaS - Premium</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
@@ -11,7 +11,6 @@
 
     <style>
         body { font-family: 'Inter', sans-serif; }
-        /* Cores de Identidade das Marcas */
         .card-ifood, .btn-ifood { background-color: #ea1d2c !important; color: white !important; }
         .card-rappi, .btn-rappi { background-color: #ff441f !important; color: white !important; }
         .card-99food, .btn-99food { background-color: #ffc107 !important; color: #4d3a00 !important; }
@@ -20,10 +19,15 @@
         .card-ubereats, .btn-ubereats { background-color: #000 !important; color: white !important; }
         
         .btn-brand { transition: all 0.2s; cursor: pointer; border: 2px solid transparent; }
-        .btn-brand:hover { opacity: 0.9; transform: scale(1.02); }
-        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
         
+        /* Animação Pulsar para o Botão Coletar */
+        .animate-pulse-custom { animation: pulse-custom 1.5s infinite; }
+        @keyframes pulse-custom {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.7); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(22, 163, 74, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(22, 163, 74, 0); }
+        }
+
         @media print { 
             body * { visibility: hidden; } 
             #print-area, #print-area * { visibility: visible; } 
@@ -35,43 +39,34 @@
 
     <div id="saas-landing" class="hidden fixed inset-0 bg-slate-900 z-[100] flex items-center justify-center p-6">
         <div class="bg-white p-8 rounded-[2.5rem] max-w-sm w-full shadow-2xl">
-            <h1 class="text-3xl font-black text-slate-800 text-center mb-2">Fila Digital <span class="text-blue-600">SaaS</span></h1>
-            <p class="text-slate-500 text-center mb-8 font-medium">Sua loja em outro nível.</p>
+            <h1 class="text-3xl font-black text-slate-800 text-center mb-6">Fila Digital <span class="text-blue-600">SaaS</span></h1>
             <div class="space-y-4">
-                <input type="text" id="saas-store-name" placeholder="Nome da Loja (ex: burgertop)" class="w-full border-2 border-slate-100 p-4 rounded-2xl outline-none focus:border-blue-500 font-bold">
+                <input type="text" id="saas-store-name" placeholder="Nome da Loja" class="w-full border-2 border-slate-100 p-4 rounded-2xl outline-none focus:border-blue-500 font-bold uppercase">
                 <input type="password" id="saas-store-pass" placeholder="Senha" class="w-full border-2 border-slate-100 p-4 rounded-2xl outline-none focus:border-blue-500 font-bold">
-                <button onclick="autenticarLoja()" class="w-full bg-blue-600 text-white font-black py-5 rounded-2xl shadow-xl hover:bg-blue-700 transition">ENTRAR / CRIAR LOJA</button>
+                <button onclick="autenticarLoja()" class="w-full bg-blue-600 text-white font-black py-5 rounded-2xl shadow-xl hover:bg-blue-700 transition">ENTRAR / CRIAR</button>
             </div>
         </div>
     </div>
 
     <nav id="app-nav" class="hidden bg-white border-b border-slate-200 px-4 py-3 flex justify-between items-center shadow-sm sticky top-0 z-50 no-print">
-        <div class="flex items-center gap-3">
-            <span id="nav-title" class="font-black text-slate-800 uppercase text-xs sm:text-lg tracking-tight">
-                <span id="store-display" class="text-blue-600 mr-2">LOJA</span> FILA DE COLETA
+        <div class="flex items-center gap-2">
+            <span id="nav-title" class="font-black text-slate-800 uppercase text-xs sm:text-lg tracking-tighter">
+                <span id="store-display" class="text-blue-600">LOJA</span> - DASHBOARD
             </span>
         </div>
         <div id="toggle-view" class="flex gap-1 bg-slate-100 p-1 rounded-full">
             <button onclick="changeView('motoboy')" id="nav-moto" class="px-4 py-2 rounded-full transition bg-green-600 text-white uppercase text-[10px] font-bold">Motoboy</button>
-            <button onclick="changeView('loja')" id="nav-loja" class="px-4 py-2 rounded-full transition text-slate-600 uppercase text-[10px] font-bold">Painel Loja</button>
+            <button onclick="changeView('loja')" id="nav-loja" class="px-4 py-2 rounded-full transition text-slate-600 uppercase text-[10px] font-bold">Painel</button>
         </div>
     </nav>
 
     <div id="app-content" class="hidden">
-        <div id="print-area" class="hidden">
-            <h1 style="font-size: 60px; font-weight: 900; text-transform: uppercase;" id="print-store-name">LOJA</h1>
-            <p style="font-size: 24px; font-weight: 700; color: #64748b; margin-bottom: 40px;">ESCANEIE PARA ENTRAR NA FILA</p>
-            <div id="qrcode-print" style="padding: 20px; border: 15px solid black; border-radius: 40px;"></div>
-            <p style="font-size: 20px; font-weight: 800; margin-top: 40px; color: #1e293b;">EVITE ATRASOS • ESCANEIE AO CHEGAR</p>
-        </div>
-
-        <main id="view-motoboy" class="max-w-md mx-auto p-4 block no-print fade-in">
+        <main id="view-motoboy" class="max-w-md mx-auto p-4 block no-print">
             <div id="motoboy-form" class="bg-white p-8 rounded-[2.5rem] shadow-xl border border-slate-100 mt-4">
                 <div class="space-y-4">
-                    <input type="number" id="inputPedido" inputmode="numeric" placeholder="Nº do Pedido" class="w-full bg-slate-50 border-2 border-slate-100 p-4 rounded-2xl text-4xl font-black text-slate-700 outline-none focus:border-green-500">
-                    <input type="text" id="inputNome" placeholder="Seu Nome" class="w-full bg-slate-50 border-2 border-slate-100 p-4 rounded-2xl text-xl font-bold text-slate-600 outline-none focus:border-green-500">
-                    
-                    <div class="grid grid-cols-2 gap-3">
+                    <input type="number" id="inputPedido" inputmode="numeric" placeholder="Nº do Pedido" class="w-full bg-slate-50 border-2 border-slate-100 p-4 rounded-2xl text-4xl font-black text-slate-700 outline-none">
+                    <input type="text" id="inputNome" placeholder="Seu Nome" class="w-full bg-slate-50 border-2 border-slate-100 p-4 rounded-2xl text-xl font-bold text-slate-600 outline-none">
+                    <div class="grid grid-cols-2 gap-3" id="btn-grid-moto">
                         <button onclick="setAppMoto(this, 'iFood')" class="btn-ifood p-4 rounded-2xl font-bold text-xs btn-brand">iFood</button>
                         <button onclick="setAppMoto(this, 'Rappi')" class="btn-rappi p-4 rounded-2xl font-bold text-xs btn-brand">Rappi</button>
                         <button onclick="setAppMoto(this, '99 Food')" class="btn-99food p-4 rounded-2xl font-bold text-xs btn-brand">99 Food</button>
@@ -84,63 +79,67 @@
             </div>
 
             <div id="motoboy-status" class="hidden py-10">
-                <div id="loja-msg-container" class="hidden mb-6">
-                    <div class="bg-blue-600 text-white p-6 rounded-3xl shadow-xl text-center font-bold relative fade-in">
-                        <p class="text-[10px] uppercase opacity-70 mb-1">Mensagem da Loja:</p>
-                        <span id="loja-msg-texto" class="text-xl"></span>
-                        <div class="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-blue-600 rotate-45"></div>
-                    </div>
+                <div id="loja-msg-container" class="hidden mb-6 bg-blue-600 text-white p-6 rounded-3xl shadow-xl text-center font-bold">
+                    <span id="loja-msg-texto" class="text-xl"></span>
                 </div>
                 <div class="bg-white p-10 rounded-[3rem] shadow-2xl text-center border-4 border-dashed border-slate-200">
                     <h3 id="ticket-pedido" class="text-7xl font-black text-slate-800 mb-2">#0000</h3>
-                    <p id="ticket-nome" class="text-2xl font-bold text-slate-500 mb-2"></p>
-                    <p id="ticket-app" class="font-black uppercase mb-4 text-green-600"></p>
+                    <p id="ticket-nome" class="text-2xl font-bold text-slate-500 mb-4"></p>
                     <div class="bg-slate-50 rounded-3xl p-6 mb-8">
-                        <p class="text-[10px] font-bold text-slate-400 uppercase">Tempo em Espera</p>
                         <p id="timer-moto" class="text-5xl font-mono font-bold text-slate-700">00:00</p>
                     </div>
-                    <div id="badge-status-moto" class="font-bold text-slate-400 uppercase italic">Aguardando Cozinha...</div>
+                    <div id="badge-status-moto" class="font-bold text-slate-400 uppercase italic">Aguardando...</div>
                 </div>
-                <button id="btn-finalizar" onclick="confirmarColetaFinal()" class="hidden w-full mt-8 bg-green-600 text-white font-black py-8 rounded-[2.5rem] text-4xl shadow-2xl uppercase animate-bounce">COLETAR</button>
+                <button id="btn-finalizar" onclick="confirmarColetaFinal()" class="hidden w-full mt-8 bg-green-600 text-white font-black py-8 rounded-[2.5rem] text-4xl shadow-2xl uppercase animate-pulse-custom">COLETAR</button>
             </div>
         </main>
 
-        <main id="view-loja" class="hidden p-6 max-w-7xl mx-auto space-y-8 no-print fade-in">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="bg-white p-10 rounded-[2.5rem] shadow-sm border text-center flex flex-col justify-center">
-                    <p class="text-[10px] font-black text-slate-400 uppercase mb-3 tracking-widest">Média de Espera Hoje</p>
-                    <h2 id="media-espera" class="text-7xl font-black text-green-600">0s</h2>
+        <main id="view-loja" class="hidden p-6 max-w-7xl mx-auto space-y-8 no-print">
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3" id="ranking-apps">
+                <div class="bg-white p-4 rounded-3xl border shadow-sm text-center">
+                    <p class="text-[10px] font-black text-slate-400 uppercase">Média</p>
+                    <h2 id="media-espera" class="text-2xl font-black text-green-600">0s</h2>
                 </div>
-                <div class="bg-white p-6 rounded-[2.5rem] shadow-sm border flex items-center justify-around">
-                    <div class="text-center">
-                        <p class="text-[10px] font-black text-slate-400 uppercase mb-4 tracking-widest">QR Code Imprimir</p>
-                        <button onclick="window.print()" class="text-[11px] bg-slate-900 text-white font-black py-4 px-8 rounded-full uppercase shadow-lg hover:scale-105 transition">Gerar Folha A4</button>
+                </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center bg-white p-6 rounded-[2.5rem] border shadow-sm">
+                <div class="flex items-center gap-6">
+                    <div id="qrcode" class="p-2 border-2 border-slate-50 rounded-2xl bg-white"></div>
+                    <div>
+                        <p class="text-xs font-black text-slate-400 uppercase mb-2">Configuração da Loja</p>
+                        <button onclick="window.print()" class="bg-slate-900 text-white font-black py-3 px-6 rounded-full text-[10px] uppercase">Imprimir QR A4</button>
                     </div>
-                    <div id="qrcode" class="p-2 border-4 border-slate-50 rounded-3xl bg-white shadow-inner"></div>
+                </div>
+                <div class="flex flex-col items-end">
+                    <p class="text-xs font-black text-slate-400 uppercase mb-2">Filtrar por Data</p>
+                    <input type="date" id="filtroData" onchange="renderHistoricoRealtime()" class="bg-slate-50 p-3 rounded-xl border font-bold text-sm outline-none shadow-inner">
                 </div>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div class="lg:col-span-2 space-y-6">
-                    <h2 class="text-2xl font-black text-slate-800 uppercase tracking-tighter">Fila Ativa</h2>
-                    <div id="lista-loja" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+                <div class="lg:col-span-2 space-y-4">
+                    <h2 class="text-xl font-black text-slate-800 uppercase tracking-tighter">Fila de Espera</h2>
+                    <div id="lista-loja" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
                 </div>
-                <div class="space-y-6">
-                    <h2 class="text-2xl font-black text-slate-400 uppercase tracking-tighter">Histórico</h2>
-                    <input type="date" id="filtroData" onchange="renderHistoricoRealtime()" class="w-full bg-white p-4 text-sm font-bold rounded-2xl border outline-none shadow-sm">
-                    <div id="historico-lista" class="space-y-4"></div>
+                <div class="space-y-4">
+                    <h2 class="text-xl font-black text-slate-400 uppercase tracking-tighter">Últimas Coletas</h2>
+                    <div id="historico-lista" class="space-y-3"></div>
                 </div>
             </div>
         </main>
+
+        <div id="print-area" class="hidden">
+            <h1 style="font-size: 60px; font-weight: 900; text-transform: uppercase;" id="print-store-name">LOJA</h1>
+            <p style="font-size: 24px; font-weight: 700; color: #64748b; margin-bottom: 40px;">ESCANEIE PARA ENTRAR NA FILA</p>
+            <div id="qrcode-print"></div>
+            <p style="font-size: 20px; font-weight: 800; margin-top: 40px;">EVITE ATRASOS • ESCANEIE AO CHEGAR</p>
+        </div>
     </div>
 
     <audio id="snd-ready" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3" preload="auto"></audio>
 
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyDEm26vnxeQ_f0zUUAMBqgna__hlN1LEtc",
-            databaseURL: "https://fila-correta-default-rtdb.firebaseio.com/"
-        };
+        const firebaseConfig = { apiKey: "AIzaSyDEm26vnxeQ_f0zUUAMBqgna__hlN1LEtc", databaseURL: "https://fila-correta-default-rtdb.firebaseio.com/" };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
@@ -148,39 +147,23 @@
         let storeID = urlParams.get('store');
         let isMotoView = urlParams.get('v') === 'moto';
 
-        // GESTÃO DE ACESSO
-        if (!storeID) {
-            document.getElementById('saas-landing').classList.remove('hidden');
-        } else if (isMotoView) {
-            entrarNoApp();
-        } else {
-            if (sessionStorage.getItem('auth_' + storeID)) {
-                entrarNoApp();
-            } else {
-                document.getElementById('saas-landing').classList.remove('hidden');
-            }
-        }
+        if (!storeID) { document.getElementById('saas-landing').classList.remove('hidden'); }
+        else if (isMotoView || sessionStorage.getItem('auth_' + storeID)) { entrarNoApp(); }
+        else { document.getElementById('saas-landing').classList.remove('hidden'); }
 
         async function autenticarLoja() {
             const name = document.getElementById('saas-store-name').value.toLowerCase().trim().replace(/\s+/g, '-');
             const pass = document.getElementById('saas-store-pass').value;
-            if (!name || !pass) return alert("Preencha os campos!");
+            if (!name || !pass) return alert("Preencha tudo!");
             const configRef = db.ref(`v1/config/${name}`);
             const snap = await configRef.once('value');
             if (!snap.val()) {
-                if(confirm("Criar nova loja com esta senha?")) {
-                    await configRef.set({ password: pass });
-                    liberar(name);
-                }
-            } else if (snap.val().password === pass) {
-                liberar(name);
-            } else { alert("Senha incorreta!"); }
+                if(confirm("Criar nova loja?")) { await configRef.set({ password: pass }); liberar(name); }
+            } else if (snap.val().password === pass) { liberar(name); }
+            else { alert("Senha incorreta!"); }
         }
 
-        function liberar(n) {
-            sessionStorage.setItem('auth_'+n, 'true');
-            window.location.href = window.location.pathname + "?store=" + n;
-        }
+        function liberar(n) { sessionStorage.setItem('auth_'+n, 'true'); window.location.href = window.location.pathname + "?store=" + n; }
 
         function entrarNoApp() {
             document.getElementById('saas-landing').classList.add('hidden');
@@ -193,7 +176,10 @@
 
         let meuIdAtual = null;
         let appSelecionado = "";
-        const cardClasses = { 'iFood': 'card-ifood', 'Rappi': 'card-rappi', '99 Food': 'card-99food', 'Keeta': 'card-keeta', 'Lalamove': 'card-lalamove', 'Uber Eats': 'card-ubereats' };
+        const appsInfo = [
+            {n:'iFood', c:'card-ifood'}, {n:'Rappi', c:'card-rappi'}, {n:'99 Food', c:'card-99food'},
+            {n:'Keeta', c:'card-keeta'}, {n:'Lalamove', c:'card-lalamove'}, {n:'Uber Eats', c:'card-ubereats'}
+        ];
 
         function inicializarApp() {
             gerarQRCode();
@@ -202,9 +188,8 @@
         }
 
         function setAppMoto(btn, nome) {
-            document.querySelectorAll('#view-motoboy .btn-brand').forEach(b => b.classList.remove('ring-4', 'ring-blue-400'));
-            appSelecionado = nome;
-            btn.classList.add('ring-4', 'ring-blue-400');
+            document.querySelectorAll('#btn-grid-moto button').forEach(b => b.classList.remove('ring-4', 'ring-blue-400'));
+            appSelecionado = nome; btn.classList.add('ring-4', 'ring-blue-400');
         }
 
         function changeView(view) {
@@ -219,8 +204,7 @@
             const num = document.getElementById('inputPedido').value;
             const nome = document.getElementById('inputNome').value;
             if(!num || !appSelecionado || !nome) return alert("Preencha tudo!");
-            const id = Date.now();
-            meuIdAtual = id;
+            const id = Date.now(); meuIdAtual = id;
             db.ref(`v1/lojas/${storeID}/fila/${id}`).set({ id, pedido: num, nome, app: appSelecionado, status: 'preparando', entrada: id, data: new Date().toISOString().split('T')[0] });
             iniciarTelaEspera();
         }
@@ -229,20 +213,14 @@
             document.getElementById('motoboy-form').style.display = 'none';
             document.getElementById('motoboy-status').classList.remove('hidden');
             db.ref(`v1/lojas/${storeID}/fila/${meuIdAtual}`).on('value', (snap) => {
-                const p = snap.val();
-                if(!p) { location.reload(); return; }
+                const p = snap.val(); if(!p) { location.reload(); return; }
                 document.getElementById('ticket-pedido').innerText = "#" + p.pedido;
                 document.getElementById('ticket-nome').innerText = p.nome;
-                document.getElementById('ticket-app').innerText = p.app;
-                if(p.mensagem) {
-                    document.getElementById('loja-msg-container').classList.remove('hidden');
-                    document.getElementById('loja-msg-texto').innerText = p.mensagem;
-                } else { document.getElementById('loja-msg-container').classList.add('hidden'); }
+                if(p.mensagem) { document.getElementById('loja-msg-container').classList.remove('hidden'); document.getElementById('loja-msg-texto').innerText = p.mensagem; }
                 if(p.status === 'liberado') {
-                    document.getElementById('badge-status-moto').innerText = "✅ PEDIDO LIBERADO!";
+                    document.getElementById('badge-status-moto').innerText = "✅ LIBERADO!";
                     document.getElementById('btn-finalizar').classList.remove('hidden');
-                    const audio = document.getElementById('snd-ready');
-                    audio.loop = true; audio.play().catch(()=>{});
+                    const audio = document.getElementById('snd-ready'); audio.loop = true; audio.play().catch(()=>{});
                 }
             });
             setInterval(() => {
@@ -259,7 +237,7 @@
 
         function confirmarColetaFinal() {
             document.getElementById('snd-ready').pause();
-            db.ref(`v1/lojas/${storeID}/fila/${meuIdAtual}`).once('value', (snap) => {
+            db.ref(`v1/lojas/${storeID}/fila/${meuIdAtual}`).once('value', snap => {
                 const p = snap.val();
                 if(p) {
                     p.segundosTotais = Math.floor((Date.now() - p.entrada) / 1000);
@@ -272,59 +250,71 @@
         }
 
         function renderFilaRealtime() {
-            db.ref(`v1/lojas/${storeID}/fila`).on('value', (snap) => {
+            db.ref(`v1/lojas/${storeID}/fila`).on('value', snap => {
                 const fila = snap.val() ? Object.values(snap.val()) : [];
                 document.getElementById('lista-loja').innerHTML = fila.map(p => `
-                    <div class="p-6 rounded-[2rem] shadow-xl border-2 relative fade-in ${cardClasses[p.app]}">
-                        <button onclick="if(confirm('Remover?')) db.ref('v1/lojas/${storeID}/fila/${p.id}').remove()" class="absolute top-4 right-4 bg-black/20 w-8 h-8 rounded-full font-bold">×</button>
-                        <span class="text-[10px] font-black uppercase opacity-70">${p.app}</span>
-                        <h3 class="text-4xl font-black mt-1">#${p.pedido}</h3>
-                        <p class="text-md font-bold mb-4 uppercase opacity-90">${p.nome}</p>
+                    <div class="p-6 rounded-[2rem] shadow-lg border-2 relative ${appsInfo.find(a=>a.n===p.app).c}">
+                        <button onclick="db.ref('v1/lojas/${storeID}/fila/${p.id}').remove()" class="absolute top-4 right-4 bg-black/20 w-8 h-8 rounded-full font-bold">×</button>
+                        <span class="text-[9px] font-black uppercase opacity-70">${p.app}</span>
+                        <h3 class="text-3xl font-black">#${p.pedido}</h3>
+                        <p class="text-xs font-bold mb-4 opacity-90">${p.nome}</p>
                         <div class="grid grid-cols-2 gap-2">
-                            ${p.status === 'preparando' ? `<button onclick="db.ref('v1/lojas/${storeID}/fila/${p.id}').update({status:'liberado'})" class="bg-white text-slate-900 font-black py-3 rounded-xl uppercase text-[10px]">Liberar</button>` : `<div class="bg-black/20 text-white py-3 rounded-xl font-bold text-center text-[10px] uppercase italic">Chamando...</div>`}
-                            <button onclick="document.getElementById('opt-${p.id}').classList.toggle('hidden')" class="bg-black/10 text-white font-black py-3 rounded-xl uppercase text-[10px]">💬 Msg</button>
+                            ${p.status === 'preparando' ? `<button onclick="db.ref('v1/lojas/${storeID}/fila/${p.id}').update({status:'liberado'})" class="bg-white text-slate-900 font-black py-2 rounded-xl text-[10px] uppercase">Liberar</button>` : `<div class="bg-black/20 text-white py-2 rounded-xl text-center text-[10px] uppercase font-bold italic tracking-tighter">Chamando...</div>`}
+                            <button onclick="document.getElementById('opt-${p.id}').classList.toggle('hidden')" class="bg-black/10 text-white font-black py-2 rounded-xl text-[10px] uppercase">Mensagem</button>
                         </div>
-                        <div id="opt-${p.id}" class="hidden mt-3 bg-white p-3 rounded-2xl shadow-inner">
-                            <input type="text" id="input-msg-${p.id}" placeholder="Mensagem livre..." class="w-full text-slate-800 p-2 text-xs border rounded-lg mb-2 outline-none">
-                            <button onclick="enviarMsgLivre(${p.id})" class="w-full bg-blue-600 text-white py-2 rounded-lg text-[10px] font-bold uppercase">Enviar</button>
+                        <div id="opt-${p.id}" class="hidden mt-3 bg-white p-3 rounded-2xl">
+                            <input type="text" id="in-msg-${p.id}" placeholder="Msg..." class="w-full text-slate-800 p-2 text-xs border rounded-lg mb-2 outline-none">
+                            <button onclick="enviarMsgLivre(${p.id})" class="w-full bg-blue-600 text-white py-2 rounded-lg text-[9px] font-black uppercase">Enviar</button>
                         </div>
-                    </div>`).join('') || '<p class="text-slate-400 font-bold italic">Fila vazia...</p>';
+                    </div>`).join('') || '<p class="text-slate-400 font-bold italic">Sem motoboys na fila.</p>';
             });
         }
 
         function enviarMsgLivre(id) {
-            const m = document.getElementById('input-msg-'+id);
-            if(m.value) {
-                db.ref(`v1/lojas/${storeID}/fila/${id}`).update({mensagem: m.value});
-                m.value = '';
-                document.getElementById('opt-'+id).classList.add('hidden');
-            }
+            const m = document.getElementById('in-msg-'+id);
+            if(m.value) { db.ref(`v1/lojas/${storeID}/fila/${id}`).update({mensagem: m.value}); m.value = ''; document.getElementById('opt-'+id).classList.add('hidden'); }
         }
 
         function renderHistoricoRealtime() {
             const dataFiltro = document.getElementById('filtroData').value;
-            db.ref(`v1/lojas/${storeID}/historico`).on('value', (snap) => {
+            db.ref(`v1/lojas/${storeID}/historico`).on('value', snap => {
                 const hist = snap.val() ? Object.values(snap.val()) : [];
                 const filtrado = hist.filter(h => h.data === dataFiltro);
+                
+                // Média
                 if(filtrado.length > 0) {
                     const soma = filtrado.reduce((acc, curr) => acc + (curr.segundosTotais || 0), 0);
                     const media = Math.round(soma / filtrado.length);
                     document.getElementById('media-espera').innerText = media < 60 ? media + "s" : Math.floor(media/60) + "m " + (media%60) + "s";
                 } else { document.getElementById('media-espera').innerText = "0s"; }
-                document.getElementById('historico-lista').innerHTML = filtrado.reverse().slice(0, 10).map(h => `
-                    <div class="bg-white p-4 rounded-2xl border flex justify-between items-center text-xs shadow-sm fade-in">
-                        <div><p class="font-black text-slate-700">#${h.pedido} - ${h.nome}</p><p class="text-green-600 font-bold">Coleta em: ${h.tempoEspera || '0s'}</p></div>
-                        <button onclick="db.ref('v1/lojas/${storeID}/historico/${h.id}').remove()" class="text-red-400 text-lg px-2">×</button>
+
+                // Ranking
+                let rankingHTML = '';
+                appsInfo.forEach(app => {
+                    const qtd = filtrado.filter(h => h.app === app.n).length;
+                    rankingHTML += `
+                        <div class="${app.c} p-4 rounded-3xl shadow-sm text-center">
+                            <p class="text-[9px] font-black uppercase opacity-70">${app.n}</p>
+                            <h2 class="text-xl font-black">${qtd}</h2>
+                        </div>`;
+                });
+                const rContainer = document.getElementById('ranking-apps');
+                const mediaDiv = rContainer.firstElementChild.outerHTML;
+                rContainer.innerHTML = mediaDiv + rankingHTML;
+
+                // Lista
+                document.getElementById('historico-lista').innerHTML = filtrado.reverse().slice(0, 8).map(h => `
+                    <div class="bg-white p-4 rounded-2xl border flex justify-between items-center text-[10px] shadow-sm">
+                        <div><p class="font-black">#${h.pedido} - ${h.nome}</p><p class="text-green-600 font-bold">${h.tempoEspera || '0s'}</p></div>
+                        <button onclick="db.ref('v1/lojas/${storeID}/historico/${h.id}').remove()" class="text-red-400 text-lg font-bold">×</button>
                     </div>`).join('');
             });
         }
 
         function gerarQRCode() {
             const url = window.location.origin + window.location.pathname + "?store=" + storeID + "&v=moto";
-            document.getElementById("qrcode").innerHTML = ""; 
-            new QRCode(document.getElementById("qrcode"), { text: url, width: 100, height: 100 });
-            document.getElementById("qrcode-print").innerHTML = ""; 
-            new QRCode(document.getElementById("qrcode-print"), { text: url, width: 500, height: 500, correctLevel: QRCode.CorrectLevel.H });
+            document.getElementById("qrcode").innerHTML = ""; new QRCode(document.getElementById("qrcode"), { text: url, width: 80, height: 80 });
+            document.getElementById("qrcode-print").innerHTML = ""; new QRCode(document.getElementById("qrcode-print"), { text: url, width: 450, height: 450 });
         }
     </script>
 </body>
