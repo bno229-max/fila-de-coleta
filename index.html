@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Loja Controle de Fila</title>
+    <title>Fila Digital SaaS</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
@@ -11,8 +11,9 @@
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-        body { font-family: 'Inter', sans-serif; }
+        body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
         
+        /* Cores Oficiais */
         .card-ifood, .btn-ifood { background-color: #ea1d2c !important; color: white !important; }
         .card-rappi, .btn-rappi { background-color: #ff441f !important; color: white !important; }
         .card-99food, .btn-99food { background-color: #ffc107 !important; color: #4d3a00 !important; }
@@ -20,44 +21,46 @@
         .card-lalamove, .btn-lalamove { background-color: #f60 !important; color: white !important; }
         .card-ubereats, .btn-ubereats { background-color: #000 !important; color: white !important; }
         
+        /* Efeito Hover Validado */
+        .btn-brand { transition: all 0.3s ease; cursor: pointer; border: 4px solid transparent; }
+        .btn-brand:hover { transform: translateY(-5px) scale(1.05); filter: brightness(1.2); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+        .btn-brand.active { border-color: #3b82f6; transform: scale(1.05); }
+
+        /* Ajuste de Impressão QR GIGANTE */
         @media print { 
             body * { visibility: hidden; } 
             #print-area, #print-area * { visibility: visible; } 
-            #print-area { position: absolute; left: 0; top: 0; width: 100%; display: flex !important; flex-direction: column; align-items: center; justify-content: center; height: 100vh; } 
-            #qrcode-print img { width: 500px !important; height: 500px !important; }
+            #print-area { position: absolute; left: 0; top: 0; width: 100%; display: flex !important; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background: white; } 
+            #qrcode-print img { width: 600px !important; height: 600px !important; margin: 0 auto; }
         }
     </style>
 </head>
-<body class="bg-slate-950 min-h-screen">
+<body class="bg-slate-950 min-h-screen text-slate-900">
 
-    <div id="saas-landing" class="fixed inset-0 flex items-center justify-center p-6 z-[100] bg-slate-950">
+    <div id="saas-landing" class="fixed inset-0 flex items-center justify-center p-6 z-[200] bg-slate-950">
         <div class="bg-white p-10 rounded-[2.5rem] max-w-sm w-full shadow-2xl text-center">
-            <h1 class="text-2xl font-black text-black uppercase leading-tight mb-8">Loja<br>Controle de Fila</h1>
-            <div id="login-fields" class="space-y-4">
-                <input type="text" id="saas-store-name" placeholder="NOME DA LOJA" class="w-full border-2 border-slate-100 p-4 rounded-2xl outline-none focus:border-green-500 font-bold uppercase text-center">
-                <input type="password" id="saas-store-pass" placeholder="SENHA" class="w-full border-2 border-slate-100 p-4 rounded-2xl outline-none focus:border-green-500 font-bold text-center">
-                <button onclick="autenticarLoja()" class="w-full bg-green-600 hover:bg-green-700 text-white font-black py-5 rounded-2xl shadow-xl uppercase transition active:scale-95">Acessar Sistema</button>
-                <button onclick="mostrarAdm()" class="text-slate-400 text-[10px] font-bold uppercase mt-2 hover:text-black">Acesso ADM</button>
-            </div>
-            <div id="lock-msg" class="hidden mt-4 p-4 bg-red-50 rounded-2xl border-2 border-red-100">
-                <p class="text-red-600 font-black text-xs uppercase">Acesso Bloqueado</p>
-                <p class="text-slate-800 font-black mt-2">Suporte: 11 91320-7227</p>
+            <h1 class="text-2xl font-black text-black uppercase leading-tight mb-8">Fila Digital <span class="text-blue-600">SaaS</span></h1>
+            <div class="space-y-4">
+                <input type="text" id="saas-store-name" placeholder="NOME DA LOJA" class="w-full border-2 border-slate-100 p-4 rounded-2xl outline-none focus:border-blue-600 font-bold uppercase text-center">
+                <input type="password" id="saas-store-pass" placeholder="Senha" class="w-full border-2 border-slate-100 p-4 rounded-2xl outline-none focus:border-blue-600 font-bold text-center">
+                <button onclick="autenticarLoja()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-5 rounded-2xl shadow-xl uppercase transition active:scale-95">Acessar Sistema</button>
+                <button onclick="document.getElementById('adm-box').classList.remove('hidden')" class="text-slate-400 text-[10px] font-bold uppercase mt-4">Acesso ADM</button>
             </div>
         </div>
     </div>
 
-    <div id="adm-box" class="hidden fixed inset-0 flex items-center justify-center p-6 z-[110] bg-black/90">
-        <div class="bg-white p-8 rounded-[2rem] max-w-sm w-full shadow-2xl">
+    <div id="adm-box" class="hidden fixed inset-0 flex items-center justify-center p-6 z-[210] bg-black/95">
+        <div class="bg-white p-8 rounded-[2rem] max-w-sm w-full">
             <div id="adm-login-form">
-                <h2 class="text-xl font-black mb-6 uppercase text-center">Painel Master</h2>
-                <input type="password" id="adm-pass" placeholder="SENHA MESTRE" class="w-full border-2 p-4 rounded-xl mb-4 text-center font-bold outline-none focus:border-blue-500">
-                <button onclick="validarAdm()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold uppercase shadow-lg">Entrar no Painel</button>
-                <button onclick="fecharAdm()" class="w-full mt-4 text-slate-400 font-bold uppercase text-[10px]">Voltar</button>
+                <h2 class="text-xl font-black mb-6 uppercase text-center">Senha Mestra</h2>
+                <input type="password" id="adm-pass" class="w-full border-2 p-4 rounded-xl mb-4 text-center font-bold outline-none">
+                <button onclick="validarAdm()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold uppercase">Entrar</button>
+                <button onclick="document.getElementById('adm-box').classList.add('hidden')" class="w-full mt-2 text-slate-400 text-xs font-bold uppercase">Fechar</button>
             </div>
             <div id="adm-content" class="hidden">
-                <h2 class="font-black mb-4 uppercase text-center text-sm">Gerenciar Senhas</h2>
-                <div id="lista-lojas-adm" class="space-y-2 max-h-60 overflow-y-auto pr-2"></div>
-                <button onclick="location.reload()" class="w-full mt-6 bg-red-500 text-white py-2 rounded-lg font-bold uppercase text-xs">Sair do ADM</button>
+                <h2 class="font-black mb-4 uppercase text-center">Lojas Ativas</h2>
+                <div id="lista-lojas-adm" class="space-y-2 max-h-64 overflow-y-auto pr-2"></div>
+                <button onclick="location.reload()" class="w-full mt-6 bg-red-500 text-white py-2 rounded-lg font-bold uppercase text-xs">Sair</button>
             </div>
         </div>
     </div>
@@ -74,52 +77,54 @@
         </nav>
 
         <main id="view-loja" class="p-6 max-w-7xl mx-auto space-y-8 hidden">
-            <div class="grid grid-cols-2 md:grid-cols-6 gap-4" id="ranking-container"></div>
+            <div class="grid grid-cols-2 md:grid-cols-7 gap-4" id="ranking-container">
+                <div class="bg-white p-5 rounded-[2rem] text-center border shadow-sm">
+                    <p class="text-[9px] font-black uppercase text-slate-400 leading-none">Média</p>
+                    <h2 id="media-espera" class="text-3xl font-black text-green-600">0s</h2>
+                </div>
+                </div>
 
             <div class="bg-white p-6 rounded-[2.5rem] shadow-sm border flex flex-col md:flex-row items-center justify-between gap-8">
-                <div class="flex items-center gap-4">
-                    <div id="qrcode" class="bg-white p-1 border rounded-lg"></div>
-                    <button onclick="window.print()" class="bg-black text-white px-5 py-3 rounded-full text-[10px] font-black uppercase">Imprimir QR A4</button>
-                </div>
-                <div class="text-center">
-                    <p class="text-[10px] font-black text-slate-400 uppercase">Tempo Médio</p>
-                    <h2 id="media-espera" class="text-6xl font-black text-green-600">0s</h2>
+                <div class="flex items-center gap-6">
+                    <div id="qrcode" class="bg-white border-2 border-slate-50 p-1 rounded-xl"></div>
+                    <div class="space-y-1">
+                        <p class="text-[10px] font-black text-slate-400 uppercase">Configuração</p>
+                        <button onclick="window.print()" class="bg-black text-white px-6 py-3 rounded-full text-[10px] font-black uppercase hover:scale-105 transition">Imprimir QR A4</button>
+                    </div>
                 </div>
                 <div class="text-right">
-                    <p class="text-[10px] font-black text-slate-400 uppercase mb-1">Filtrar</p>
-                    <input type="date" id="filtroData" onchange="renderHistoricoRealtime()" class="border p-2 rounded-xl font-bold text-xs bg-slate-50">
+                    <p class="text-[10px] font-black text-slate-400 uppercase mb-2">Filtrar Histórico</p>
+                    <input type="date" id="filtroData" onchange="renderHistoricoRealtime()" class="border-2 border-slate-100 p-3 rounded-2xl font-bold text-xs bg-slate-50 outline-none focus:border-blue-600">
                 </div>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
-                <div class="lg:col-span-2 space-y-4">
-                    <h2 class="text-xl font-black uppercase">Fila Ativa</h2>
+                <div class="lg:col-span-2">
+                    <h2 class="text-xl font-black uppercase mb-4">Fila Ativa</h2>
                     <div id="lista-loja" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
                 </div>
-                <div class="space-y-4">
-                    <h2 class="text-xl font-black text-slate-400 uppercase">Histórico</h2>
+                <div>
+                    <h2 class="text-xl font-black text-slate-400 uppercase mb-4">Histórico</h2>
                     <div id="historico-lista" class="space-y-3"></div>
                 </div>
             </div>
         </main>
 
         <main id="view-motoboy" class="p-6 max-w-md mx-auto hidden">
-            <div id="motoboy-form" class="bg-white p-8 rounded-[2.5rem] shadow-2xl border">
-                <div class="space-y-4 text-center">
-                    <input type="number" id="inputPedido" placeholder="Nº PEDIDO" class="w-full bg-slate-50 border-2 p-5 rounded-2xl text-4xl font-black text-center">
-                    <input type="text" id="inputNome" placeholder="SEU NOME" class="w-full bg-slate-50 border-2 p-4 rounded-2xl text-xl font-bold text-center">
-                    <div class="grid grid-cols-2 gap-2" id="btn-grid-moto">
-                        <button onclick="setAppMoto(this,'iFood')" class="btn-ifood p-4 rounded-xl font-bold text-xs">iFood</button>
-                        <button onclick="setAppMoto(this,'Rappi')" class="btn-rappi p-4 rounded-xl font-bold text-xs">Rappi</button>
-                        <button onclick="setAppMoto(this,'99 Food')" class="btn-99food p-4 rounded-xl font-bold text-xs">99 Food</button>
-                        <button onclick="setAppMoto(this,'Keeta')" class="btn-keeta p-4 rounded-xl font-bold text-xs">Keeta</button>
-                        <button onclick="setAppMoto(this,'Lalamove')" class="btn-lalamove p-4 rounded-xl font-bold text-xs">Lalamove</button>
-                        <button onclick="setAppMoto(this,'Uber Eats')" class="btn-ubereats p-4 rounded-xl font-bold text-xs">Uber Eats</button>
-                    </div>
-                    <button onclick="registrarEntrada()" class="w-full bg-green-600 text-white font-black py-6 rounded-2xl text-xl uppercase mt-4">Entrar na Fila</button>
+            <div id="motoboy-form" class="bg-white p-8 rounded-[3rem] shadow-2xl border border-slate-100 space-y-6">
+                <input type="number" id="inputPedido" placeholder="Nº DO PEDIDO" class="w-full bg-slate-50 border-2 border-slate-100 p-6 rounded-3xl text-4xl font-black text-center outline-none focus:border-green-500">
+                <input type="text" id="inputNome" placeholder="SEU NOME" class="w-full bg-slate-50 border-2 border-slate-100 p-5 rounded-2xl text-xl font-bold text-center outline-none">
+                <div class="grid grid-cols-2 gap-3" id="btn-grid-moto">
+                    <button onclick="setAppMoto(this,'iFood')" class="btn-ifood p-5 rounded-2xl font-black text-xs btn-brand">iFood</button>
+                    <button onclick="setAppMoto(this,'Rappi')" class="btn-rappi p-5 rounded-2xl font-black text-xs btn-brand">Rappi</button>
+                    <button onclick="setAppMoto(this,'99 Food')" class="btn-99food p-5 rounded-2xl font-black text-xs btn-brand">99 Food</button>
+                    <button onclick="setAppMoto(this,'Keeta')" class="btn-keeta p-5 rounded-2xl font-black text-xs btn-brand">Keeta</button>
+                    <button onclick="setAppMoto(this,'Lalamove')" class="btn-lalamove p-5 rounded-2xl font-black text-xs btn-brand">Lalamove</button>
+                    <button onclick="setAppMoto(this,'Uber Eats')" class="btn-ubereats p-5 rounded-2xl font-black text-xs btn-brand">Uber Eats</button>
                 </div>
+                <button onclick="registrarEntrada()" class="w-full bg-green-600 text-white font-black py-7 rounded-[2rem] text-2xl uppercase shadow-xl hover:bg-green-700 transition active:scale-95">Entrar na Fila</button>
             </div>
-            
+
             <div id="motoboy-status" class="hidden text-center space-y-6">
                 <div id="loja-msg-container" class="hidden bg-blue-600 text-white p-6 rounded-3xl font-black text-xl animate-bounce">
                     <span id="loja-msg-texto"></span>
@@ -130,15 +135,15 @@
                     <div class="bg-slate-50 rounded-3xl p-6 mt-6"><p id="timer-moto" class="text-6xl font-mono font-bold text-black">00:00</p></div>
                     <p id="badge-status" class="mt-4 font-black text-slate-300 uppercase italic">Aguardando Cozinha...</p>
                 </div>
-                <button id="btn-coletar" onclick="confirmarColetaFinal()" class="hidden w-full bg-green-600 text-white font-black py-8 rounded-[2.5rem] text-4xl uppercase animate-pulse-custom">COLETAR</button>
+                <button id="btn-coletar" onclick="confirmarColetaFinal()" class="hidden w-full bg-green-600 text-white font-black py-8 rounded-[2.5rem] text-4xl shadow-2xl uppercase animate-pulse">COLETAR</button>
             </div>
         </main>
     </div>
 
     <div id="print-area" class="hidden">
-        <h1 style="font-size: 80px; font-weight: 900;" id="print-store-name">LOJA</h1>
-        <div id="qrcode-print" style="margin: 40px 0;"></div>
-        <p style="font-size: 30px; font-weight: bold;">ESCANEIE PARA ENTRAR NA FILA</p>
+        <h1 style="font-size: 60px; font-weight: 900; margin-bottom: 10px;" id="print-store-name">LOJA</h1>
+        <div id="qrcode-print"></div>
+        <p style="font-size: 30px; font-weight: 900; margin-top: 20px; text-transform: uppercase; letter-spacing: -1px;">Escaneie para entrar na fila</p>
     </div>
 
     <audio id="snd-ready" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3" preload="auto" loop></audio>
@@ -148,32 +153,22 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
+        let appSel = "";
         const MASTER_PASS = "290519";
-        let tentativas = 0;
         const urlParams = new URLSearchParams(window.location.search);
         let storeID = urlParams.get('store');
         let isMoto = urlParams.get('v') === 'moto';
 
-        // --- FUNÇÕES DE NAVEGAÇÃO E LOGIN ---
-        function mostrarAdm() { document.getElementById('adm-box').classList.remove('hidden'); }
-        function fecharAdm() { document.getElementById('adm-box').classList.add('hidden'); }
-
+        // --- AUTH ---
         async function autenticarLoja() {
-            const name = document.getElementById('saas-store-name').value.toLowerCase().trim().replace(/\s+/g, '-');
-            const pass = document.getElementById('saas-store-pass').value;
-            if(!name || !pass) return alert("Preencha os campos!");
-
-            const snap = await db.ref(`v1/config/${name}`).once('value');
-            if(snap.val() && snap.val().password === pass) {
-                sessionStorage.setItem('auth_'+name, 'true');
-                window.location.href = `?store=${name}`;
-            } else {
-                tentativas++;
-                if(tentativas >= 3) {
-                    document.getElementById('login-fields').classList.add('hidden');
-                    document.getElementById('lock-msg').classList.remove('hidden');
-                } else alert("Dados incorretos!");
-            }
+            const n = document.getElementById('saas-store-name').value.toLowerCase().trim().replace(/\s+/g, '-');
+            const p = document.getElementById('saas-store-pass').value;
+            if(!n || !p) return alert("Preencha tudo");
+            const s = await db.ref(`v1/config/${n}`).once('value');
+            if(s.val() && s.val().password === p) {
+                sessionStorage.setItem('auth_'+n, 'true');
+                window.location.href = `?store=${n}`;
+            } else alert("Dados incorretos");
         }
 
         function validarAdm() {
@@ -181,27 +176,20 @@
                 document.getElementById('adm-login-form').classList.add('hidden');
                 document.getElementById('adm-content').classList.remove('hidden');
                 carregarLojasAdm();
-            } else alert("Senha Mestra Inválida!");
-        }
-
-        async function carregarLojasAdm() {
-            const snap = await db.ref(`v1/config`).once('value');
-            const lojas = snap.val();
-            const list = document.getElementById('lista-lojas-adm');
-            list.innerHTML = "";
-            for(let k in lojas) {
-                const item = document.createElement('div');
-                item.className = "flex justify-between items-center bg-slate-50 p-4 rounded-xl border mb-2";
-                item.innerHTML = `<div class='text-left'><p class='font-black text-[10px] uppercase'>${k}</p><p class='text-blue-600 text-xs font-bold'>${lojas[k].password}</p></div>
-                <button onclick="resetSenha('${k}')" class='bg-black text-white px-3 py-1 rounded text-[8px] font-bold uppercase'>Reset</button>`;
-                list.appendChild(item);
             }
         }
 
-        async function resetSenha(l) {
-            const n = prompt("Nova senha para " + l.toUpperCase());
-            if(n) { await db.ref(`v1/config/${l}`).update({password: n}); carregarLojasAdm(); }
+        async function carregarLojasAdm() {
+            const s = await db.ref(`v1/config`).once('value');
+            const l = s.val(); const div = document.getElementById('lista-lojas-adm'); div.innerHTML = "";
+            for(let k in l) {
+                div.innerHTML += `<div class="flex justify-between items-center bg-slate-50 p-3 rounded-xl border mb-2 text-left">
+                    <div><p class="font-black text-[10px] uppercase">${k}</p><p class="text-blue-600 text-xs font-bold">${l[k].password}</p></div>
+                    <button onclick="resetSenha('${k}')" class="bg-black text-white px-3 py-1 rounded text-[8px] font-bold uppercase">Novo</button>
+                </div>`;
+            }
         }
+        async function resetSenha(loja) { const n = prompt("Nova senha:"); if(n) await db.ref(`v1/config/${loja}`).update({password: n}); carregarLojasAdm(); }
 
         // --- INICIALIZAÇÃO ---
         if(storeID && (isMoto || sessionStorage.getItem('auth_'+storeID))) {
@@ -213,33 +201,134 @@
             
             if(isMoto) changeView('motoboy');
             else { changeView('loja'); renderFilaRealtime(); renderHistoricoRealtime(); }
-            gerarQRCode();
+            setTimeout(gerarQRCode, 500);
         }
 
         function changeView(v) {
             document.getElementById('view-loja').classList.toggle('hidden', v !== 'loja');
             document.getElementById('view-motoboy').classList.toggle('hidden', v !== 'motoboy');
-            document.getElementById('nav-moto').className = v === 'motoboy' ? "px-6 py-2 rounded-full bg-green-600 text-white font-bold text-[10px] uppercase" : "px-6 py-2 text-slate-400 font-bold text-[10px] uppercase";
-            document.getElementById('nav-loja').className = v === 'loja' ? "px-6 py-2 rounded-full bg-blue-600 text-white font-bold text-[10px] uppercase" : "px-6 py-2 text-slate-400 font-bold text-[10px] uppercase";
+            document.getElementById('nav-moto').className = v === 'motoboy' ? "px-6 py-2 rounded-full bg-green-600 text-white font-bold text-[10px] uppercase shadow-md" : "px-6 py-2 text-slate-400 font-bold text-[10px] uppercase";
+            document.getElementById('nav-loja').className = v === 'loja' ? "px-6 py-2 rounded-full bg-blue-600 text-white font-bold text-[10px] uppercase shadow-md" : "px-6 py-2 text-slate-400 font-bold text-[10px] uppercase";
         }
 
         function gerarQRCode() {
             const url = window.location.origin + window.location.pathname + "?store=" + storeID + "&v=moto";
             document.getElementById("qrcode").innerHTML = "";
             document.getElementById("qrcode-print").innerHTML = "";
-            new QRCode(document.getElementById("qrcode"), { text: url, width: 70, height: 70 });
-            new QRCode(document.getElementById("qrcode-print"), { text: url, width: 500, height: 500 });
+            new QRCode(document.getElementById("qrcode"), { text: url, width: 80, height: 80 });
+            new QRCode(document.getElementById("qrcode-print"), { text: url, width: 600, height: 600 });
             document.getElementById('print-store-name').innerText = storeID.toUpperCase();
         }
 
-        function getAppColor(a) {
-            const colors = {'iFood':'card-ifood','Rappi':'card-rappi','99 Food':'card-99food','Keeta':'card-keeta','Lalamove':'card-lalamove','Uber Eats':'card-ubereats'};
-            return colors[a] || 'bg-slate-800';
+        // --- LÓGICA FILA ---
+        function setAppMoto(btn, app) {
+            document.querySelectorAll('#btn-grid-moto button').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            appSel = app;
         }
 
-        // ... (As funções de Registrar, Fila Realtime e Histórico continuam aqui conforme validamos) ...
-        // Note: Para brevidade, as lógicas de banco de dados do motoboy e dashboard estão integradas 
-        // e usam os mesmos nomes de função das versões anteriores.
+        function registrarEntrada() {
+            const p = document.getElementById('inputPedido').value; const n = document.getElementById('inputNome').value;
+            if(!p || !n || !appSel) return alert("Complete os dados!");
+            const id = Date.now();
+            db.ref(`v1/lojas/${storeID}/fila/${id}`).set({ id, pedido:p, nome:n, app:appSel, status:'preparando', entrada:id, data:new Date().toISOString().split('T')[0] });
+            iniciarEsperaMoto(id);
+        }
+
+        function iniciarEsperaMoto(id) {
+            document.getElementById('motoboy-form').classList.add('hidden');
+            document.getElementById('motoboy-status').classList.remove('hidden');
+            db.ref(`v1/lojas/${storeID}/fila/${id}`).on('value', s => {
+                const d = s.val(); if(!d) return;
+                document.getElementById('ticket-pedido').innerText = "#" + d.pedido;
+                document.getElementById('ticket-nome').innerText = d.nome;
+                if(d.mensagem) { document.getElementById('loja-msg-container').classList.remove('hidden'); document.getElementById('loja-msg-texto').innerText = d.mensagem; }
+                if(d.status === 'liberado') {
+                    document.getElementById('badge-status').innerText = "LIBERADO!";
+                    document.getElementById('btn-coletar').classList.remove('hidden');
+                    document.getElementById('snd-ready').play();
+                }
+            });
+            setInterval(() => {
+                db.ref(`v1/lojas/${storeID}/fila/${id}`).once('value', s => {
+                    if(s.val()){
+                        const diff = Math.floor((Date.now() - s.val().entrada)/1000);
+                        document.getElementById('timer-moto').innerText = Math.floor(diff/60).toString().padStart(2,'0') + ":" + (diff%60).toString().padStart(2,'0');
+                    }
+                });
+            }, 1000);
+        }
+
+        function confirmarColetaFinal() {
+            db.ref(`v1/lojas/${storeID}/fila`).once('value', s => {
+                const f = s.val(); for(let k in f) {
+                    const p = f[k]; p.segTotais = Math.floor((Date.now() - p.entrada)/1000);
+                    p.tempoEspera = Math.floor(p.segTotais/60) + "m " + (p.segTotais%60) + "s";
+                    db.ref(`v1/lojas/${storeID}/historico/${k}`).set(p);
+                    db.ref(`v1/lojas/${storeID}/fila/${k}`).remove();
+                }
+                location.reload();
+            });
+        }
+
+        function renderFilaRealtime() {
+            db.ref(`v1/lojas/${storeID}/fila`).on('value', s => {
+                const f = s.val() ? Object.values(s.val()) : [];
+                document.getElementById('lista-loja').innerHTML = f.map(p => `
+                    <div class="p-6 rounded-[2rem] border-2 relative ${getAppColor(p.app)} shadow-lg">
+                        <span class="text-[9px] font-black uppercase opacity-60">${p.app}</span>
+                        <h3 class="text-4xl font-black">#${p.pedido}</h3>
+                        <p class="font-bold text-xs mb-4 uppercase opacity-80">${p.nome}</p>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button onclick="db.ref('v1/lojas/${storeID}/fila/${p.id}').update({status:'liberado'})" class="bg-white text-black py-2 rounded-xl font-black text-[9px] uppercase">Liberar</button>
+                            <button onclick="enviarMsg('${p.id}')" class="bg-black/20 text-white py-2 rounded-xl font-black text-[9px] uppercase">Msg</button>
+                            <button onclick="db.ref('v1/lojas/${storeID}/fila/${p.id}').remove()" class="bg-black/10 text-white py-2 rounded-xl font-black text-[9px] uppercase italic">Excluir</button>
+                        </div>
+                    </div>`).join('');
+            });
+        }
+
+        function enviarMsg(id) { const m = prompt("Mensagem:"); if(m) db.ref(`v1/lojas/${storeID}/fila/${id}`).update({mensagem: m}); }
+
+        function renderHistoricoRealtime() {
+            const dt = document.getElementById('filtroData').value;
+            db.ref(`v1/lojas/${storeID}/historico`).on('value', s => {
+                const h = s.val() ? Object.values(s.val()) : [];
+                const fil = h.filter(x => x.data === dt);
+                
+                // Média
+                if(fil.length > 0) {
+                    const avg = Math.round(fil.reduce((a, b) => a + (b.segTotais || 0), 0) / fil.length);
+                    document.getElementById('media-espera').innerText = avg < 60 ? avg + "s" : Math.floor(avg/60) + "m " + (avg%60) + "s";
+                }
+
+                // Ranking corrigido
+                const apps = ['iFood', 'Rappi', '99 Food', 'Keeta', 'Lalamove', 'Uber Eats'];
+                const rankingHTML = apps.map(a => {
+                    const q = fil.filter(x => x.app === a).length;
+                    return `<div class="${getAppColor(a)} p-5 rounded-[2rem] text-center shadow-sm">
+                        <p class="text-[9px] font-black uppercase opacity-60 mb-1 leading-none">${a}</p>
+                        <h2 class="text-3xl font-black">${q}</h2>
+                    </div>`;
+                }).join('');
+                
+                // Manter o card da média e adicionar os apps
+                const container = document.getElementById('ranking-container');
+                const mediaHTML = container.firstElementChild.outerHTML;
+                container.innerHTML = mediaHTML + rankingHTML;
+
+                document.getElementById('historico-lista').innerHTML = fil.reverse().slice(0, 10).map(x => `
+                    <div class="bg-white p-4 rounded-2xl border flex justify-between items-center shadow-sm text-[10px]">
+                        <div><p class="font-black">#${x.pedido} - ${x.nome}</p><p class="text-green-600 font-bold">${x.tempoEspera}</p></div>
+                        <button onclick="db.ref('v1/lojas/${storeID}/historico/${x.id}').remove()" class="text-red-400 font-bold text-lg">×</button>
+                    </div>`).join('');
+            });
+        }
+
+        function getAppColor(a) {
+            const c = {'iFood':'card-ifood','Rappi':'card-rappi','99 Food':'card-99food','Keeta':'card-keeta','Lalamove':'card-lalamove','Uber Eats':'card-ubereats'};
+            return c[a] || 'bg-slate-800 text-white';
+        }
     </script>
 </body>
 </html>
