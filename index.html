@@ -11,9 +11,8 @@
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-        body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
         
-        /* Cores Oficiais */
         .card-ifood, .btn-ifood { background-color: #ea1d2c !important; color: white !important; }
         .card-rappi, .btn-rappi { background-color: #ff441f !important; color: white !important; }
         .card-99food, .btn-99food { background-color: #ffc107 !important; color: #4d3a00 !important; }
@@ -21,99 +20,82 @@
         .card-lalamove, .btn-lalamove { background-color: #f60 !important; color: white !important; }
         .card-ubereats, .btn-ubereats { background-color: #000 !important; color: white !important; }
         
-        /* Efeito Hover Validado */
-        .btn-brand { transition: all 0.3s ease; cursor: pointer; border: 4px solid transparent; }
-        .btn-brand:hover { transform: translateY(-5px) scale(1.05); filter: brightness(1.2); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
-        .btn-brand.active { border-color: #3b82f6; transform: scale(1.05); }
+        .btn-brand { transition: all 0.2s ease; cursor: pointer; border: 3px solid transparent; }
+        .btn-brand:hover { transform: translateY(-3px); filter: brightness(1.1); box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
+        .btn-brand.active { border-color: #3b82f6; transform: scale(1.02); }
 
-        /* Ajuste de Impressão QR GIGANTE */
         @media print { 
             body * { visibility: hidden; } 
             #print-area, #print-area * { visibility: visible; } 
-            #print-area { position: absolute; left: 0; top: 0; width: 100%; display: flex !important; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background: white; } 
-            #qrcode-print img { width: 600px !important; height: 600px !important; margin: 0 auto; }
+            #print-area { position: absolute; left: 0; top: 0; width: 100%; display: flex !important; flex-direction: column; align-items: center; justify-content: center; height: 100vh; } 
+            #qrcode-print img { width: 550px !important; height: 550px !important; }
         }
     </style>
 </head>
-<body class="bg-slate-950 min-h-screen text-slate-900">
+<body class="min-h-screen">
 
     <div id="saas-landing" class="fixed inset-0 flex items-center justify-center p-6 z-[200] bg-slate-950">
         <div class="bg-white p-10 rounded-[2.5rem] max-w-sm w-full shadow-2xl text-center">
-            <h1 class="text-2xl font-black text-black uppercase leading-tight mb-8">Fila Digital <span class="text-blue-600">SaaS</span></h1>
+            <h1 class="text-2xl font-black text-black uppercase mb-8 italic">Fila Digital <span class="text-blue-600">SaaS</span></h1>
             <div class="space-y-4">
-                <input type="text" id="saas-store-name" placeholder="NOME DA LOJA" class="w-full border-2 border-slate-100 p-4 rounded-2xl outline-none focus:border-blue-600 font-bold uppercase text-center">
-                <input type="password" id="saas-store-pass" placeholder="Senha" class="w-full border-2 border-slate-100 p-4 rounded-2xl outline-none focus:border-blue-600 font-bold text-center">
-                <button onclick="autenticarLoja()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-5 rounded-2xl shadow-xl uppercase transition active:scale-95">Acessar Sistema</button>
-                <button onclick="document.getElementById('adm-box').classList.remove('hidden')" class="text-slate-400 text-[10px] font-bold uppercase mt-4">Acesso ADM</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="adm-box" class="hidden fixed inset-0 flex items-center justify-center p-6 z-[210] bg-black/95">
-        <div class="bg-white p-8 rounded-[2rem] max-w-sm w-full">
-            <div id="adm-login-form">
-                <h2 class="text-xl font-black mb-6 uppercase text-center">Senha Mestra</h2>
-                <input type="password" id="adm-pass" class="w-full border-2 p-4 rounded-xl mb-4 text-center font-bold outline-none">
-                <button onclick="validarAdm()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold uppercase">Entrar</button>
-                <button onclick="document.getElementById('adm-box').classList.add('hidden')" class="w-full mt-2 text-slate-400 text-xs font-bold uppercase">Fechar</button>
-            </div>
-            <div id="adm-content" class="hidden">
-                <h2 class="font-black mb-4 uppercase text-center">Lojas Ativas</h2>
-                <div id="lista-lojas-adm" class="space-y-2 max-h-64 overflow-y-auto pr-2"></div>
-                <button onclick="location.reload()" class="w-full mt-6 bg-red-500 text-white py-2 rounded-lg font-bold uppercase text-xs">Sair</button>
+                <input type="text" id="saas-store-name" placeholder="NOME DA LOJA" class="w-full border-2 p-4 rounded-2xl outline-none focus:border-blue-600 font-bold uppercase text-center">
+                <input type="password" id="saas-store-pass" placeholder="SENHA" class="w-full border-2 p-4 rounded-2xl outline-none focus:border-blue-600 font-bold text-center">
+                <button onclick="autenticarLoja()" class="w-full bg-blue-600 text-white font-black py-5 rounded-2xl shadow-xl uppercase transition hover:bg-blue-700">Acessar Sistema</button>
+                <button onclick="document.getElementById('adm-box').classList.remove('hidden')" class="text-slate-400 text-[10px] font-bold uppercase mt-4">Painel ADM</button>
             </div>
         </div>
     </div>
 
     <div id="app-wrapper" class="hidden">
         <nav class="bg-white border-b border-slate-200 px-6 py-4 flex justify-between items-center sticky top-0 z-50">
-            <div class="font-black text-black uppercase tracking-tighter text-lg">
+            <div class="font-black text-black uppercase tracking-tight text-lg">
                 <span id="store-display" class="text-green-600">NOME</span> - <span id="view-title">DASHBOARD</span>
             </div>
-            <div class="flex gap-2 bg-slate-100 p-1 rounded-full">
-                <button onclick="changeView('motoboy')" id="nav-moto" class="px-6 py-2 rounded-full font-bold text-[10px] uppercase">Motoboy</button>
-                <button onclick="changeView('loja')" id="nav-loja" class="px-6 py-2 rounded-full font-bold text-[10px] uppercase">Painel</button>
+            <div class="flex items-center gap-4">
+                <div class="flex gap-1 bg-slate-100 p-1 rounded-full">
+                    <button onclick="changeView('motoboy')" id="nav-moto" class="px-5 py-2 rounded-full font-bold text-[10px] uppercase transition">Motoboy</button>
+                    <button onclick="changeView('loja')" id="nav-loja" class="px-5 py-2 rounded-full font-bold text-[10px] uppercase transition">Painel</button>
+                </div>
+                <button onclick="fazerLogoff()" class="text-red-500 font-black text-[10px] uppercase border-l pl-4 hover:opacity-70">Logoff</button>
             </div>
         </nav>
 
         <main id="view-loja" class="p-6 max-w-7xl mx-auto space-y-8 hidden">
-            <div class="grid grid-cols-2 md:grid-cols-7 gap-4" id="ranking-container">
-                <div class="bg-white p-5 rounded-[2rem] text-center border shadow-sm">
-                    <p class="text-[9px] font-black uppercase text-slate-400 leading-none">Média</p>
-                    <h2 id="media-espera" class="text-3xl font-black text-green-600">0s</h2>
+            <div class="grid grid-cols-2 md:grid-cols-6 gap-4" id="ranking-container"></div>
+
+            <div class="bg-white p-6 rounded-[2.5rem] shadow-sm border grid grid-cols-1 md:grid-cols-3 items-center gap-8">
+                <div class="flex items-center gap-4">
+                    <div id="qrcode" class="bg-white border p-1 rounded-lg"></div>
+                    <button onclick="window.print()" class="bg-black text-white px-5 py-3 rounded-full text-[10px] font-black uppercase">Imprimir QR A4</button>
                 </div>
+                
+                <div class="text-center border-x border-slate-100">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tempo Médio</p>
+                    <h2 id="media-espera" class="text-6xl font-black text-green-600">0s</h2>
                 </div>
 
-            <div class="bg-white p-6 rounded-[2.5rem] shadow-sm border flex flex-col md:flex-row items-center justify-between gap-8">
-                <div class="flex items-center gap-6">
-                    <div id="qrcode" class="bg-white border-2 border-slate-50 p-1 rounded-xl"></div>
-                    <div class="space-y-1">
-                        <p class="text-[10px] font-black text-slate-400 uppercase">Configuração</p>
-                        <button onclick="window.print()" class="bg-black text-white px-6 py-3 rounded-full text-[10px] font-black uppercase hover:scale-105 transition">Imprimir QR A4</button>
-                    </div>
-                </div>
                 <div class="text-right">
-                    <p class="text-[10px] font-black text-slate-400 uppercase mb-2">Filtrar Histórico</p>
-                    <input type="date" id="filtroData" onchange="renderHistoricoRealtime()" class="border-2 border-slate-100 p-3 rounded-2xl font-bold text-xs bg-slate-50 outline-none focus:border-blue-600">
+                    <p class="text-[10px] font-black text-slate-400 uppercase mb-1">Filtrar Histórico</p>
+                    <input type="date" id="filtroData" onchange="renderHistoricoRealtime()" class="border-2 border-slate-50 p-3 rounded-2xl font-bold text-xs bg-slate-50 outline-none focus:border-blue-600">
                 </div>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
                 <div class="lg:col-span-2">
-                    <h2 class="text-xl font-black uppercase mb-4">Fila Ativa</h2>
+                    <h2 class="text-xl font-black uppercase mb-4">Fila de Espera Ativa</h2>
                     <div id="lista-loja" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
                 </div>
                 <div>
-                    <h2 class="text-xl font-black text-slate-400 uppercase mb-4">Histórico</h2>
+                    <h2 class="text-xl font-black text-slate-300 uppercase mb-4 tracking-tighter">Histórico</h2>
                     <div id="historico-lista" class="space-y-3"></div>
                 </div>
             </div>
         </main>
 
         <main id="view-motoboy" class="p-6 max-w-md mx-auto hidden">
-            <div id="motoboy-form" class="bg-white p-8 rounded-[3rem] shadow-2xl border border-slate-100 space-y-6">
-                <input type="number" id="inputPedido" placeholder="Nº DO PEDIDO" class="w-full bg-slate-50 border-2 border-slate-100 p-6 rounded-3xl text-4xl font-black text-center outline-none focus:border-green-500">
-                <input type="text" id="inputNome" placeholder="SEU NOME" class="w-full bg-slate-50 border-2 border-slate-100 p-5 rounded-2xl text-xl font-bold text-center outline-none">
+            <div id="motoboy-form" class="bg-white p-8 rounded-[3rem] shadow-2xl border border-slate-50 space-y-6">
+                <input type="number" id="inputPedido" placeholder="Nº DO PEDIDO" class="w-full bg-slate-50 border-2 p-6 rounded-3xl text-4xl font-black text-center outline-none focus:border-green-500">
+                <input type="text" id="inputNome" placeholder="SEU NOME" class="w-full bg-slate-50 border-2 p-5 rounded-2xl text-xl font-bold text-center outline-none">
                 <div class="grid grid-cols-2 gap-3" id="btn-grid-moto">
                     <button onclick="setAppMoto(this,'iFood')" class="btn-ifood p-5 rounded-2xl font-black text-xs btn-brand">iFood</button>
                     <button onclick="setAppMoto(this,'Rappi')" class="btn-rappi p-5 rounded-2xl font-black text-xs btn-brand">Rappi</button>
@@ -122,18 +104,19 @@
                     <button onclick="setAppMoto(this,'Lalamove')" class="btn-lalamove p-5 rounded-2xl font-black text-xs btn-brand">Lalamove</button>
                     <button onclick="setAppMoto(this,'Uber Eats')" class="btn-ubereats p-5 rounded-2xl font-black text-xs btn-brand">Uber Eats</button>
                 </div>
-                <button onclick="registrarEntrada()" class="w-full bg-green-600 text-white font-black py-7 rounded-[2rem] text-2xl uppercase shadow-xl hover:bg-green-700 transition active:scale-95">Entrar na Fila</button>
+                <button onclick="registrarEntrada()" class="w-full bg-green-600 text-white font-black py-7 rounded-[2rem] text-2xl uppercase shadow-xl active:scale-95 transition">Entrar na Fila</button>
             </div>
 
             <div id="motoboy-status" class="hidden text-center space-y-6">
-                <div id="loja-msg-container" class="hidden bg-blue-600 text-white p-6 rounded-3xl font-black text-xl animate-bounce">
+                <div id="loja-msg-container" class="hidden bg-blue-600 text-white p-6 rounded-3xl font-black text-xl animate-bounce shadow-xl">
                     <span id="loja-msg-texto"></span>
                 </div>
-                <div class="bg-white p-10 rounded-[3rem] shadow-2xl border-4 border-slate-100">
-                    <h3 id="ticket-pedido" class="text-8xl font-black text-black">#0000</h3>
-                    <p id="ticket-nome" class="text-2xl font-bold text-slate-500 uppercase mt-2"></p>
-                    <div class="bg-slate-50 rounded-3xl p-6 mt-6"><p id="timer-moto" class="text-6xl font-mono font-bold text-black">00:00</p></div>
-                    <p id="badge-status" class="mt-4 font-black text-slate-300 uppercase italic">Aguardando Cozinha...</p>
+                <div class="bg-white p-10 rounded-[3rem] shadow-2xl border-4 border-slate-50">
+                    <h3 id="ticket-pedido" class="text-8xl font-black text-black leading-none">#0000</h3>
+                    <p id="ticket-nome" class="text-2xl font-bold text-slate-400 uppercase mt-4"></p>
+                    <div class="bg-slate-50 rounded-3xl p-6 mt-8">
+                        <p id="timer-moto" class="text-6xl font-mono font-black text-black">00:00</p>
+                    </div>
                 </div>
                 <button id="btn-coletar" onclick="confirmarColetaFinal()" class="hidden w-full bg-green-600 text-white font-black py-8 rounded-[2.5rem] text-4xl shadow-2xl uppercase animate-pulse">COLETAR</button>
             </div>
@@ -141,9 +124,9 @@
     </div>
 
     <div id="print-area" class="hidden">
-        <h1 style="font-size: 60px; font-weight: 900; margin-bottom: 10px;" id="print-store-name">LOJA</h1>
-        <div id="qrcode-print"></div>
-        <p style="font-size: 30px; font-weight: 900; margin-top: 20px; text-transform: uppercase; letter-spacing: -1px;">Escaneie para entrar na fila</p>
+        <h1 style="font-size: 50px; font-weight: 900;" id="print-store-name">LOJA</h1>
+        <div id="qrcode-print" style="margin: 40px 0;"></div>
+        <p style="font-size: 25px; font-weight: 900; text-transform: uppercase;">Aproxime a câmera para entrar na fila</p>
     </div>
 
     <audio id="snd-ready" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3" preload="auto" loop></audio>
@@ -154,16 +137,15 @@
         const db = firebase.database();
 
         let appSel = "";
-        const MASTER_PASS = "290519";
         const urlParams = new URLSearchParams(window.location.search);
         let storeID = urlParams.get('store');
         let isMoto = urlParams.get('v') === 'moto';
 
-        // --- AUTH ---
+        // --- AUTH & LOGOFF ---
         async function autenticarLoja() {
             const n = document.getElementById('saas-store-name').value.toLowerCase().trim().replace(/\s+/g, '-');
             const p = document.getElementById('saas-store-pass').value;
-            if(!n || !p) return alert("Preencha tudo");
+            if(!n || !p) return alert("Campos vazios");
             const s = await db.ref(`v1/config/${n}`).once('value');
             if(s.val() && s.val().password === p) {
                 sessionStorage.setItem('auth_'+n, 'true');
@@ -171,67 +153,55 @@
             } else alert("Dados incorretos");
         }
 
-        function validarAdm() {
-            if(document.getElementById('adm-pass').value === MASTER_PASS) {
-                document.getElementById('adm-login-form').classList.add('hidden');
-                document.getElementById('adm-content').classList.remove('hidden');
-                carregarLojasAdm();
-            }
+        function fazerLogoff() {
+            sessionStorage.removeItem('auth_'+storeID);
+            window.location.href = window.location.pathname;
         }
-
-        async function carregarLojasAdm() {
-            const s = await db.ref(`v1/config`).once('value');
-            const l = s.val(); const div = document.getElementById('lista-lojas-adm'); div.innerHTML = "";
-            for(let k in l) {
-                div.innerHTML += `<div class="flex justify-between items-center bg-slate-50 p-3 rounded-xl border mb-2 text-left">
-                    <div><p class="font-black text-[10px] uppercase">${k}</p><p class="text-blue-600 text-xs font-bold">${l[k].password}</p></div>
-                    <button onclick="resetSenha('${k}')" class="bg-black text-white px-3 py-1 rounded text-[8px] font-bold uppercase">Novo</button>
-                </div>`;
-            }
-        }
-        async function resetSenha(loja) { const n = prompt("Nova senha:"); if(n) await db.ref(`v1/config/${loja}`).update({password: n}); carregarLojasAdm(); }
 
         // --- INICIALIZAÇÃO ---
         if(storeID && (isMoto || sessionStorage.getItem('auth_'+storeID))) {
             document.getElementById('saas-landing').style.display = 'none';
             document.getElementById('app-wrapper').classList.remove('hidden');
-            document.body.classList.replace('bg-slate-950', 'bg-slate-50');
             document.getElementById('store-display').innerText = storeID.toUpperCase();
             document.getElementById('filtroData').valueAsDate = new Date();
             
             if(isMoto) changeView('motoboy');
             else { changeView('loja'); renderFilaRealtime(); renderHistoricoRealtime(); }
-            setTimeout(gerarQRCode, 500);
+            setTimeout(gerarQRCode, 400);
         }
 
         function changeView(v) {
             document.getElementById('view-loja').classList.toggle('hidden', v !== 'loja');
             document.getElementById('view-motoboy').classList.toggle('hidden', v !== 'motoboy');
-            document.getElementById('nav-moto').className = v === 'motoboy' ? "px-6 py-2 rounded-full bg-green-600 text-white font-bold text-[10px] uppercase shadow-md" : "px-6 py-2 text-slate-400 font-bold text-[10px] uppercase";
-            document.getElementById('nav-loja').className = v === 'loja' ? "px-6 py-2 rounded-full bg-blue-600 text-white font-bold text-[10px] uppercase shadow-md" : "px-6 py-2 text-slate-400 font-bold text-[10px] uppercase";
+            
+            // Ajuste do Título conforme Foto 2
+            const title = document.getElementById('view-title');
+            if(v === 'motoboy') title.innerText = "FILA DE COLETA";
+            else title.innerText = "DASHBOARD";
+
+            document.getElementById('nav-moto').className = v === 'motoboy' ? "px-5 py-2 rounded-full bg-green-600 text-white font-bold text-[10px] uppercase shadow-md" : "px-5 py-2 text-slate-400 font-bold text-[10px] uppercase";
+            document.getElementById('nav-loja').className = v === 'loja' ? "px-5 py-2 rounded-full bg-blue-600 text-white font-bold text-[10px] uppercase shadow-md" : "px-5 py-2 text-slate-400 font-bold text-[10px] uppercase";
         }
 
         function gerarQRCode() {
             const url = window.location.origin + window.location.pathname + "?store=" + storeID + "&v=moto";
-            document.getElementById("qrcode").innerHTML = "";
-            document.getElementById("qrcode-print").innerHTML = "";
-            new QRCode(document.getElementById("qrcode"), { text: url, width: 80, height: 80 });
-            new QRCode(document.getElementById("qrcode-print"), { text: url, width: 600, height: 600 });
+            document.getElementById("qrcode").innerHTML = ""; document.getElementById("qrcode-print").innerHTML = "";
+            new QRCode(document.getElementById("qrcode"), { text: url, width: 70, height: 70 });
+            new QRCode(document.getElementById("qrcode-print"), { text: url, width: 550, height: 550 });
             document.getElementById('print-store-name').innerText = storeID.toUpperCase();
         }
 
-        // --- LÓGICA FILA ---
+        // --- MOTOBOY LOGIC ---
         function setAppMoto(btn, app) {
             document.querySelectorAll('#btn-grid-moto button').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            appSel = app;
+            btn.classList.add('active'); appSel = app;
         }
 
         function registrarEntrada() {
             const p = document.getElementById('inputPedido').value; const n = document.getElementById('inputNome').value;
             if(!p || !n || !appSel) return alert("Complete os dados!");
             const id = Date.now();
-            db.ref(`v1/lojas/${storeID}/fila/${id}`).set({ id, pedido:p, nome:n, app:appSel, status:'preparando', entrada:id, data:new Date().toISOString().split('T')[0] });
+            db.ref(`v1/lojas/${storeID}/fila/${id}`).set({ id, pedido:p, nome:n, app:appSel, status:'espera', entrada:id, data:new Date().toISOString().split('T')[0] });
             iniciarEsperaMoto(id);
         }
 
@@ -243,11 +213,7 @@
                 document.getElementById('ticket-pedido').innerText = "#" + d.pedido;
                 document.getElementById('ticket-nome').innerText = d.nome;
                 if(d.mensagem) { document.getElementById('loja-msg-container').classList.remove('hidden'); document.getElementById('loja-msg-texto').innerText = d.mensagem; }
-                if(d.status === 'liberado') {
-                    document.getElementById('badge-status').innerText = "LIBERADO!";
-                    document.getElementById('btn-coletar').classList.remove('hidden');
-                    document.getElementById('snd-ready').play();
-                }
+                if(d.status === 'liberado') { document.getElementById('btn-coletar').classList.remove('hidden'); document.getElementById('snd-ready').play(); }
             });
             setInterval(() => {
                 db.ref(`v1/lojas/${storeID}/fila/${id}`).once('value', s => {
@@ -263,7 +229,6 @@
             db.ref(`v1/lojas/${storeID}/fila`).once('value', s => {
                 const f = s.val(); for(let k in f) {
                     const p = f[k]; p.segTotais = Math.floor((Date.now() - p.entrada)/1000);
-                    p.tempoEspera = Math.floor(p.segTotais/60) + "m " + (p.segTotais%60) + "s";
                     db.ref(`v1/lojas/${storeID}/historico/${k}`).set(p);
                     db.ref(`v1/lojas/${storeID}/fila/${k}`).remove();
                 }
@@ -271,24 +236,27 @@
             });
         }
 
+        // --- DASHBOARD LOGIC ---
         function renderFilaRealtime() {
             db.ref(`v1/lojas/${storeID}/fila`).on('value', s => {
-                const f = s.val() ? Object.values(s.val()) : [];
-                document.getElementById('lista-loja').innerHTML = f.map(p => `
-                    <div class="p-6 rounded-[2rem] border-2 relative ${getAppColor(p.app)} shadow-lg">
+                const fila = s.val() ? Object.values(s.val()) : [];
+                document.getElementById('lista-loja').innerHTML = fila.map(p => `
+                    <div class="p-6 rounded-[2rem] border-2 relative ${getAppColor(p.app)} shadow-xl overflow-hidden">
+                        <button onclick="db.ref('v1/lojas/${storeID}/fila/${p.id}').remove()" class="absolute top-4 right-5 text-white/50 hover:text-white font-black text-xl">×</button>
+                        
                         <span class="text-[9px] font-black uppercase opacity-60">${p.app}</span>
                         <h3 class="text-4xl font-black">#${p.pedido}</h3>
-                        <p class="font-bold text-xs mb-4 uppercase opacity-80">${p.nome}</p>
-                        <div class="grid grid-cols-3 gap-2">
-                            <button onclick="db.ref('v1/lojas/${storeID}/fila/${p.id}').update({status:'liberado'})" class="bg-white text-black py-2 rounded-xl font-black text-[9px] uppercase">Liberar</button>
-                            <button onclick="enviarMsg('${p.id}')" class="bg-black/20 text-white py-2 rounded-xl font-black text-[9px] uppercase">Msg</button>
-                            <button onclick="db.ref('v1/lojas/${storeID}/fila/${p.id}').remove()" class="bg-black/10 text-white py-2 rounded-xl font-black text-[9px] uppercase italic">Excluir</button>
+                        <p class="font-bold text-xs mb-5 uppercase opacity-80">${p.nome}</p>
+                        
+                        <div class="flex gap-2">
+                            <button onclick="db.ref('v1/lojas/${storeID}/fila/${p.id}').update({status:'liberado'})" class="flex-1 bg-white text-black py-3 rounded-xl font-black text-[10px] uppercase shadow-sm">Liberar</button>
+                            <button onclick="enviarMsg('${p.id}')" class="flex-1 bg-black/20 text-white py-3 rounded-xl font-black text-[10px] uppercase">Mensagem</button>
                         </div>
                     </div>`).join('');
             });
         }
 
-        function enviarMsg(id) { const m = prompt("Mensagem:"); if(m) db.ref(`v1/lojas/${storeID}/fila/${id}`).update({mensagem: m}); }
+        function enviarMsg(id) { const m = prompt("Mensagem para o Motoboy:"); if(m) db.ref(`v1/lojas/${storeID}/fila/${id}`).update({mensagem: m}); }
 
         function renderHistoricoRealtime() {
             const dt = document.getElementById('filtroData').value;
@@ -299,28 +267,23 @@
                 // Média
                 if(fil.length > 0) {
                     const avg = Math.round(fil.reduce((a, b) => a + (b.segTotais || 0), 0) / fil.length);
-                    document.getElementById('media-espera').innerText = avg < 60 ? avg + "s" : Math.floor(avg/60) + "m " + (avg%60) + "s";
+                    document.getElementById('media-espera').innerText = avg < 60 ? avg + "s" : Math.floor(avg/60) + "m";
                 }
 
-                // Ranking corrigido
+                // Ranking
                 const apps = ['iFood', 'Rappi', '99 Food', 'Keeta', 'Lalamove', 'Uber Eats'];
-                const rankingHTML = apps.map(a => {
+                document.getElementById('ranking-container').innerHTML = apps.map(a => {
                     const q = fil.filter(x => x.app === a).length;
-                    return `<div class="${getAppColor(a)} p-5 rounded-[2rem] text-center shadow-sm">
-                        <p class="text-[9px] font-black uppercase opacity-60 mb-1 leading-none">${a}</p>
+                    return `<div class="${getAppColor(a)} p-6 rounded-[2rem] text-center shadow-sm">
+                        <p class="text-[9px] font-black uppercase opacity-60 mb-1">${a}</p>
                         <h2 class="text-3xl font-black">${q}</h2>
                     </div>`;
                 }).join('');
-                
-                // Manter o card da média e adicionar os apps
-                const container = document.getElementById('ranking-container');
-                const mediaHTML = container.firstElementChild.outerHTML;
-                container.innerHTML = mediaHTML + rankingHTML;
 
-                document.getElementById('historico-lista').innerHTML = fil.reverse().slice(0, 10).map(x => `
+                document.getElementById('historico-lista').innerHTML = fil.reverse().slice(0, 8).map(x => `
                     <div class="bg-white p-4 rounded-2xl border flex justify-between items-center shadow-sm text-[10px]">
-                        <div><p class="font-black">#${x.pedido} - ${x.nome}</p><p class="text-green-600 font-bold">${x.tempoEspera}</p></div>
-                        <button onclick="db.ref('v1/lojas/${storeID}/historico/${x.id}').remove()" class="text-red-400 font-bold text-lg">×</button>
+                        <div><p class="font-black">#${x.pedido} - ${x.nome}</p><p class="text-slate-400 font-bold">${Math.floor((x.segTotais||0)/60)}m espera</p></div>
+                        <button onclick="db.ref('v1/lojas/${storeID}/historico/${x.id}').remove()" class="text-red-400 font-bold text-xl">×</button>
                     </div>`).join('');
             });
         }
