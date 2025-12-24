@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fila Digital SaaS</title>
+    <title>Fila Digital SaaS - Gestão de Coletas</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
@@ -11,7 +11,7 @@
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; overflow-x: hidden; }
         
         .card-ifood, .btn-ifood { background-color: #ea1d2c !important; color: white !important; }
         .card-rappi, .btn-rappi { background-color: #ff441f !important; color: white !important; }
@@ -24,7 +24,21 @@
         .btn-brand:hover { transform: translateY(-2px); filter: brightness(1.1); }
         .btn-brand.active { border-color: #3b82f6; }
 
-        /* QR CODE IMPRESSÃO GIGANTE */
+        /* Estilo do Balão de Conversa (Foto 2) */
+        .chat-bubble {
+            position: relative; background: #ffffff; border: 2px solid #e2e8f0;
+            border-radius: 1.5rem; padding: 1.2rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        .chat-bubble::after {
+            content: ''; position: absolute; bottom: -10px; left: 50%;
+            transform: translateX(-50%); border-width: 10px 10px 0;
+            border-style: solid; border-color: #ffffff transparent transparent;
+        }
+
+        /* Ajuste de Números Grandes (Foto 1) */
+        .ticket-number { font-size: clamp(3rem, 18vw, 7rem); line-height: 0.9; word-break: break-all; }
+
+        /* Ajuste QR Code Gigante na Impressão */
         @media print { 
             body * { visibility: hidden; } 
             #print-area, #print-area * { visibility: visible; } 
@@ -51,9 +65,9 @@
     <div id="adm-box" class="hidden fixed inset-0 flex items-center justify-center p-6 z-[210] bg-black/90 backdrop-blur-sm">
         <div class="bg-white p-8 rounded-[2.5rem] max-w-lg w-full shadow-2xl overflow-y-auto max-h-[90vh]">
             <div id="adm-login-form">
-                <h2 class="text-xl font-black mb-6 uppercase text-center">Acesso Restrito ADM</h2>
-                <input type="password" id="adm-pass" class="w-full border-2 p-4 rounded-xl mb-4 text-center font-bold outline-none focus:border-blue-600">
-                <button onclick="validarAdm()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold uppercase shadow-lg">Entrar no Gestor</button>
+                <h2 class="text-xl font-black mb-6 uppercase text-center">Gestor Master</h2>
+                <input type="password" id="adm-pass" placeholder="Senha Mestra" class="w-full border-2 p-4 rounded-xl mb-4 text-center font-bold outline-none focus:border-blue-600">
+                <button onclick="validarAdm()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold uppercase shadow-lg">Entrar</button>
                 <button onclick="document.getElementById('adm-box').classList.add('hidden')" class="w-full mt-4 text-slate-400 text-xs font-bold uppercase">Cancelar</button>
             </div>
 
@@ -61,9 +75,9 @@
                 <div class="bg-slate-50 p-6 rounded-3xl border-2 border-dashed border-slate-200">
                     <h3 class="font-black uppercase text-sm mb-4 text-slate-700">Cadastrar Nova Loja</h3>
                     <div class="grid grid-cols-1 gap-3">
-                        <input type="text" id="new-store-name" placeholder="NOME DA LOJA (Sem espaços)" class="w-full p-3 rounded-xl border font-bold text-sm uppercase">
-                        <input type="text" id="new-store-pass" placeholder="SENHA DA LOJA" class="w-full p-3 rounded-xl border font-bold text-sm">
-                        <button onclick="cadastrarNovaLoja()" class="bg-green-600 text-white font-black py-3 rounded-xl uppercase text-xs hover:bg-green-700">Criar Loja Agora</button>
+                        <input type="text" id="new-store-name" placeholder="ID da Loja (ex: pizza-prime)" class="w-full p-3 rounded-xl border font-bold text-sm uppercase">
+                        <input type="text" id="new-store-pass" placeholder="Definir Senha" class="w-full p-3 rounded-xl border font-bold text-sm">
+                        <button onclick="cadastrarNovaLoja()" class="bg-green-600 text-white font-black py-3 rounded-xl uppercase text-xs hover:bg-green-700">Criar Loja</button>
                     </div>
                 </div>
 
@@ -72,7 +86,7 @@
                     <div id="lista-lojas-adm" class="space-y-3"></div>
                 </div>
 
-                <button onclick="location.reload()" class="w-full bg-slate-800 text-white py-4 rounded-2xl font-black uppercase text-xs">Fechar e Sair</button>
+                <button onclick="location.reload()" class="w-full bg-slate-800 text-white py-4 rounded-2xl font-black uppercase text-xs">Sair do Painel</button>
             </div>
         </div>
     </div>
@@ -80,14 +94,14 @@
     <div id="app-wrapper" class="hidden">
         <nav id="main-nav" class="bg-white border-b border-slate-200 px-6 py-4 flex justify-between items-center sticky top-0 z-50">
             <div class="font-black text-black uppercase tracking-tight text-lg">
-                <span id="store-display" class="text-green-600">NOME</span> - <span id="view-title">DASHBOARD</span>
+                <span id="store-display" class="text-green-600">LOJA</span> - <span id="view-title">DASHBOARD</span>
             </div>
             <div class="flex items-center gap-4">
                 <div class="flex gap-1 bg-slate-100 p-1 rounded-full">
                     <button onclick="changeView('motoboy')" id="nav-moto" class="px-5 py-2 rounded-full font-bold text-[10px] uppercase transition">Motoboy</button>
                     <button onclick="changeView('loja')" id="nav-loja" class="px-5 py-2 rounded-full font-bold text-[10px] uppercase transition">Painel</button>
                 </div>
-                <button onclick="fazerLogoff()" class="text-red-500 font-black text-[10px] uppercase border-l pl-4 hover:opacity-70">Logoff</button>
+                <button onclick="fazerLogoff()" class="text-red-500 font-black text-[10px] uppercase border-l pl-4 hover:opacity-70">Sair</button>
             </div>
         </nav>
 
@@ -133,16 +147,16 @@
                     <button onclick="setAppMoto(this,'Lalamove')" class="btn-lalamove p-4 rounded-2xl font-black text-[10px] btn-brand">Lalamove</button>
                     <button onclick="setAppMoto(this,'Uber Eats')" class="btn-ubereats p-4 rounded-2xl font-black text-[10px] btn-brand">Uber Eats</button>
                 </div>
-                <button onclick="registrarEntrada()" class="w-full bg-green-600 text-white font-black py-7 rounded-[2rem] text-2xl uppercase shadow-xl active:scale-95 transition">Entrar na Fila</button>
+                <button onclick="registrarEntrada()" class="w-full bg-green-600 text-white font-black py-7 rounded-[2rem] text-2xl uppercase shadow-xl">Entrar na Fila</button>
             </div>
 
             <div id="motoboy-status" class="hidden text-center space-y-8">
-                <div id="loja-msg-container" class="hidden p-6 bg-white border-2 rounded-3xl shadow-xl animate-bounce">
-                    <p class="text-[9px] font-black text-blue-600 uppercase mb-1 tracking-widest">Recado da Loja</p>
+                <div id="loja-msg-container" class="hidden chat-bubble animate-bounce">
+                    <p class="text-[9px] font-black text-blue-600 uppercase mb-1 tracking-widest">A Loja enviou:</p>
                     <span id="loja-msg-texto" class="text-xl font-black text-slate-800 leading-tight"></span>
                 </div>
                 <div class="bg-white p-8 rounded-[3rem] shadow-2xl border-4 border-slate-50">
-                    <h3 id="ticket-pedido" class="text-7xl font-black text-black leading-none">#0</h3>
+                    <h3 id="ticket-pedido" class="ticket-number font-black text-black leading-none">#0</h3>
                     <p id="ticket-nome" class="text-xl font-bold text-slate-400 uppercase mt-2 truncate"></p>
                     <div class="bg-slate-50 rounded-3xl p-6 mt-8">
                         <p id="timer-moto" class="text-6xl font-mono font-black text-black">00:00</p>
@@ -171,14 +185,14 @@
         let storeID = urlParams.get('store');
         let isMoto = urlParams.get('v') === 'moto';
 
-        // --- ADM LOGIC ---
+        // --- SISTEMA ADM MASTER ---
         function abrirAdm() { document.getElementById('adm-box').classList.remove('hidden'); }
         function validarAdm() {
             if(document.getElementById('adm-pass').value === "290519") {
                 document.getElementById('adm-login-form').classList.add('hidden');
                 document.getElementById('adm-content').classList.remove('hidden');
                 carregarLojasAdm();
-            } else alert("Senha Incorreta");
+            } else alert("Senha Incorreta!");
         }
 
         async function carregarLojasAdm() {
@@ -192,47 +206,47 @@
                         <p class="text-blue-600 font-mono text-[10px] font-bold">Senha: ${l[k].password}</p>
                     </div>
                     <div class="flex gap-2">
-                        <button onclick="editarSenhaLoja('${k}')" class="bg-white p-2 rounded-lg border hover:text-blue-600">
+                        <button onclick="editarSenhaLoja('${k}')" class="bg-white p-2 rounded-lg border text-blue-500 hover:bg-blue-50">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
                         </button>
-                        <button onclick="removerLoja('${k}')" class="p-2 text-red-400 hover:text-red-600">×</button>
+                        <button onclick="removerLoja('${k}')" class="bg-white p-2 rounded-lg border text-red-500 hover:bg-red-50">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                        </button>
                     </div>
                 </div>`;
             }
         }
 
         async function editarSenhaLoja(loja) {
-            const nova = prompt(`Digite a nova senha para ${loja}:`);
+            const nova = prompt(`Defina a nova senha para ${loja}:`);
             if(nova) {
                 await db.ref(`v1/config/${loja}`).update({password: nova});
-                alert("Senha alterada!"); carregarLojasAdm();
+                alert("Senha atualizada!"); carregarLojasAdm();
             }
         }
 
         async function removerLoja(loja) {
-            if(confirm(`ATENÇÃO: Deseja excluir a loja ${loja} permanentemente?`)) {
+            if(confirm(`ATENÇÃO: Isso apagará ${loja} e todos os seus registros. Confirmar?`)) {
                 await db.ref(`v1/config/${loja}`).remove();
                 await db.ref(`v1/lojas/${loja}`).remove();
-                carregarLojasAdm();
+                alert("Loja removida!"); carregarLojasAdm();
             }
         }
 
         async function cadastrarNovaLoja() {
             const nome = document.getElementById('new-store-name').value.toLowerCase().trim().replace(/\s+/g, '-');
             const senha = document.getElementById('new-store-pass').value;
-            if(!nome || !senha) return alert("Preencha Nome e Senha!");
-            
+            if(!nome || !senha) return alert("Preencha todos os campos!");
             const check = await db.ref(`v1/config/${nome}`).once('value');
-            if(check.val()) return alert("Esta loja já existe!");
-
+            if(check.val()) return alert("Esse ID de loja já existe!");
             await db.ref(`v1/config/${nome}`).set({ password: senha });
-            alert("LOJA CADASTRADA COM SUCESSO!");
+            alert("SUCESSO: Loja Cadastrada!");
             document.getElementById('new-store-name').value = "";
             document.getElementById('new-store-pass').value = "";
             carregarLojasAdm();
         }
 
-        // --- AUTH ---
+        // --- AUTENTICAÇÃO E INÍCIO ---
         async function autenticarLoja() {
             const n = document.getElementById('saas-store-name').value.toLowerCase().trim().replace(/\s+/g, '-');
             const p = document.getElementById('saas-store-pass').value;
@@ -240,11 +254,11 @@
             if(s.val() && s.val().password === p) {
                 sessionStorage.setItem('auth_'+n, 'true');
                 window.location.href = `?store=${n}`;
-            } else alert("Loja ou Senha incorretos");
+            } else alert("Loja ou Senha incorretos!");
         }
+
         function fazerLogoff() { sessionStorage.removeItem('auth_'+storeID); window.location.href = window.location.pathname; }
 
-        // --- INIT ---
         if(storeID && (isMoto || sessionStorage.getItem('auth_'+storeID))) {
             document.getElementById('saas-landing').style.display = 'none';
             document.getElementById('app-wrapper').classList.remove('hidden');
@@ -265,12 +279,11 @@
             const url = window.location.origin + window.location.pathname + "?store=" + storeID + "&v=moto";
             document.getElementById("qrcode").innerHTML = ""; document.getElementById("qrcode-print").innerHTML = "";
             new QRCode(document.getElementById("qrcode"), { text: url, width: 75, height: 75 });
-            // QR CODE GIGANTE PARA IMPRESSÃO
             new QRCode(document.getElementById("qrcode-print"), { text: url, width: 800, height: 800 });
             document.getElementById('print-store-name').innerText = storeID.toUpperCase();
         }
 
-        // --- FILA CORE ---
+        // --- LÓGICA DA FILA ---
         function setAppMoto(btn, app) {
             document.querySelectorAll('#btn-grid-moto button').forEach(b => b.classList.remove('active'));
             btn.classList.add('active'); appSel = app;
@@ -278,7 +291,7 @@
 
         function registrarEntrada() {
             const p = document.getElementById('inputPedido').value; const n = document.getElementById('inputNome').value;
-            if(!p || !n || !appSel) return alert("Faltam dados!");
+            if(!p || !n || !appSel) return alert("Complete os dados!");
             const id = Date.now();
             db.ref(`v1/lojas/${storeID}/fila/${id}`).set({ id, pedido:p, nome:n, app:appSel, status:'espera', entrada:id, data:new Date().toISOString().split('T')[0] });
             iniciarEsperaMoto(id);
