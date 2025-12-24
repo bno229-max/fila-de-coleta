@@ -11,7 +11,7 @@
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; overflow-x: hidden; }
         
         .card-ifood, .btn-ifood { background-color: #ea1d2c !important; color: white !important; }
         .card-rappi, .btn-rappi { background-color: #ff441f !important; color: white !important; }
@@ -21,34 +21,21 @@
         .card-ubereats, .btn-ubereats { background-color: #000 !important; color: white !important; }
         
         .btn-brand { transition: all 0.2s ease; cursor: pointer; border: 3px solid transparent; }
-        .btn-brand:hover { transform: translateY(-3px); filter: brightness(1.1); }
-        .btn-brand.active { border-color: #3b82f6; transform: scale(1.02); }
+        .btn-brand:hover { transform: translateY(-2px); filter: brightness(1.1); }
+        .btn-brand.active { border-color: #3b82f6; }
 
-        /* Balão de Conversa (Foto 2) */
         .chat-bubble {
-            position: relative;
-            background: #ffffff;
-            border: 2px solid #e2e8f0;
-            border-radius: 1.5rem;
-            padding: 1.5rem;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            position: relative; background: #ffffff; border: 2px solid #e2e8f0;
+            border-radius: 1.5rem; padding: 1.2rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
         }
         .chat-bubble::after {
-            content: '';
-            position: absolute;
-            bottom: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            border-width: 10px 10px 0;
-            border-style: solid;
-            border-color: #ffffff transparent transparent;
+            content: ''; position: absolute; bottom: -10px; left: 50%;
+            transform: translateX(-50%); border-width: 10px 10px 0;
+            border-style: solid; border-color: #ffffff transparent transparent;
         }
 
-        @media print { 
-            body * { visibility: hidden; } 
-            #print-area, #print-area * { visibility: visible; } 
-            #print-area { position: absolute; left: 0; top: 0; width: 100%; display: flex !important; flex-direction: column; align-items: center; justify-content: center; height: 100vh; } 
-        }
+        /* Ajuste Foto 1: Garantir que números longos não quebrem */
+        .ticket-number { font-size: clamp(2.5rem, 15vw, 6rem); line-height: 1; word-break: break-all; }
     </style>
 </head>
 <body class="min-h-screen">
@@ -66,7 +53,7 @@
     </div>
 
     <div id="adm-box" class="hidden fixed inset-0 flex items-center justify-center p-6 z-[210] bg-black/90 backdrop-blur-sm">
-        <div class="bg-white p-8 rounded-[2rem] max-w-sm w-full shadow-2xl">
+        <div class="bg-white p-8 rounded-[2.5rem] max-w-md w-full shadow-2xl">
             <div id="adm-login-form">
                 <h2 class="text-xl font-black mb-6 uppercase text-center">Senha Mestra ADM</h2>
                 <input type="password" id="adm-pass" class="w-full border-2 p-4 rounded-xl mb-4 text-center font-bold outline-none focus:border-blue-600">
@@ -74,9 +61,12 @@
                 <button onclick="document.getElementById('adm-box').classList.add('hidden')" class="w-full mt-4 text-slate-400 text-xs font-bold uppercase">Cancelar</button>
             </div>
             <div id="adm-content" class="hidden">
-                <h2 class="font-black mb-4 uppercase text-center text-blue-600">Lojas Cadastradas</h2>
-                <div id="lista-lojas-adm" class="space-y-2 max-h-60 overflow-y-auto pr-2"></div>
-                <button onclick="location.reload()" class="w-full mt-6 bg-slate-100 text-slate-600 py-3 rounded-xl font-bold uppercase text-[10px]">Fechar Painel</button>
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="font-black uppercase text-blue-600">Gestão de Lojas</h2>
+                    <button onclick="resetarTudo()" class="text-[8px] bg-red-100 text-red-600 px-2 py-1 rounded font-bold uppercase">Reset Geral</button>
+                </div>
+                <div id="lista-lojas-adm" class="space-y-3 max-h-[400px] overflow-y-auto pr-2"></div>
+                <button onclick="location.reload()" class="w-full mt-6 bg-slate-100 text-slate-600 py-4 rounded-2xl font-black uppercase text-xs">Sair do Painel</button>
             </div>
         </div>
     </div>
@@ -119,7 +109,7 @@
                     <div id="lista-loja" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
                 </div>
                 <div>
-                    <h2 class="text-xl font-black text-slate-300 uppercase mb-4">Histórico</h2>
+                    <h2 class="text-xl font-black text-slate-300 uppercase mb-4 tracking-tighter">Histórico Recente</h2>
                     <div id="historico-lista" class="space-y-3"></div>
                 </div>
             </div>
@@ -130,25 +120,25 @@
                 <input type="number" id="inputPedido" placeholder="Nº DO PEDIDO" class="w-full bg-slate-50 border-2 p-6 rounded-3xl text-4xl font-black text-center outline-none focus:border-green-500">
                 <input type="text" id="inputNome" placeholder="SEU NOME" class="w-full bg-slate-50 border-2 p-5 rounded-2xl text-xl font-bold text-center outline-none">
                 <div class="grid grid-cols-2 gap-3" id="btn-grid-moto">
-                    <button onclick="setAppMoto(this,'iFood')" class="btn-ifood p-5 rounded-2xl font-black text-xs btn-brand">iFood</button>
-                    <button onclick="setAppMoto(this,'Rappi')" class="btn-rappi p-5 rounded-2xl font-black text-xs btn-brand">Rappi</button>
-                    <button onclick="setAppMoto(this,'99 Food')" class="btn-99food p-5 rounded-2xl font-black text-xs btn-brand">99 Food</button>
-                    <button onclick="setAppMoto(this,'Keeta')" class="btn-keeta p-5 rounded-2xl font-black text-xs btn-brand">Keeta</button>
-                    <button onclick="setAppMoto(this,'Lalamove')" class="btn-lalamove p-5 rounded-2xl font-black text-xs btn-brand">Lalamove</button>
-                    <button onclick="setAppMoto(this,'Uber Eats')" class="btn-ubereats p-5 rounded-2xl font-black text-xs btn-brand">Uber Eats</button>
+                    <button onclick="setAppMoto(this,'iFood')" class="btn-ifood p-4 rounded-2xl font-black text-[10px] btn-brand">iFood</button>
+                    <button onclick="setAppMoto(this,'Rappi')" class="btn-rappi p-4 rounded-2xl font-black text-[10px] btn-brand">Rappi</button>
+                    <button onclick="setAppMoto(this,'99 Food')" class="btn-99food p-4 rounded-2xl font-black text-[10px] btn-brand">99 Food</button>
+                    <button onclick="setAppMoto(this,'Keeta')" class="btn-keeta p-4 rounded-2xl font-black text-[10px] btn-brand">Keeta</button>
+                    <button onclick="setAppMoto(this,'Lalamove')" class="btn-lalamove p-4 rounded-2xl font-black text-[10px] btn-brand">Lalamove</button>
+                    <button onclick="setAppMoto(this,'Uber Eats')" class="btn-ubereats p-4 rounded-2xl font-black text-[10px] btn-brand">Uber Eats</button>
                 </div>
                 <button onclick="registrarEntrada()" class="w-full bg-green-600 text-white font-black py-7 rounded-[2rem] text-2xl uppercase shadow-xl active:scale-95 transition">Entrar na Fila</button>
             </div>
 
             <div id="motoboy-status" class="hidden text-center space-y-8">
                 <div id="loja-msg-container" class="hidden chat-bubble animate-bounce">
-                    <p class="text-[10px] font-black text-blue-600 uppercase mb-1">Mensagem da Loja:</p>
-                    <span id="loja-msg-texto" class="text-xl font-black text-slate-800"></span>
+                    <p class="text-[9px] font-black text-blue-600 uppercase mb-1">A loja disse:</p>
+                    <span id="loja-msg-texto" class="text-lg font-black text-slate-800 leading-tight"></span>
                 </div>
 
-                <div class="bg-white p-10 rounded-[3rem] shadow-2xl border-4 border-slate-50">
-                    <h3 id="ticket-pedido" class="text-8xl font-black text-black leading-none">#0000</h3>
-                    <p id="ticket-nome" class="text-2xl font-bold text-slate-400 uppercase mt-4"></p>
+                <div class="bg-white p-8 rounded-[3rem] shadow-2xl border-4 border-slate-50">
+                    <h3 id="ticket-pedido" class="ticket-number font-black text-black">#0</h3>
+                    <p id="ticket-nome" class="text-xl font-bold text-slate-400 uppercase mt-2 truncate px-4"></p>
                     <div class="bg-slate-50 rounded-3xl p-6 mt-8">
                         <p id="timer-moto" class="text-6xl font-mono font-black text-black">00:00</p>
                     </div>
@@ -176,68 +166,69 @@
         let storeID = urlParams.get('store');
         let isMoto = urlParams.get('v') === 'moto';
 
-        // --- AUTH & ADM ---
+        // --- ADM LOGIC (Ajuste Foto 2) ---
         function abrirAdm() { document.getElementById('adm-box').classList.remove('hidden'); }
-        
-        async function autenticarLoja() {
-            const n = document.getElementById('saas-store-name').value.toLowerCase().trim().replace(/\s+/g, '-');
-            const p = document.getElementById('saas-store-pass').value;
-            if(!n || !p) return alert("Preencha os campos!");
-            const s = await db.ref(`v1/config/${n}`).once('value');
-            if(s.val() && s.val().password === p) {
-                sessionStorage.setItem('auth_'+n, 'true');
-                window.location.href = `?store=${n}`;
-            } else alert("Loja ou senha inválida!");
-        }
-
         function validarAdm() {
             if(document.getElementById('adm-pass').value === "290519") {
                 document.getElementById('adm-login-form').classList.add('hidden');
                 document.getElementById('adm-content').classList.remove('hidden');
                 carregarLojasAdm();
-            } else alert("Senha Mestra Errada");
+            } else alert("Senha Incorreta");
         }
 
         async function carregarLojasAdm() {
             const s = await db.ref(`v1/config`).once('value');
             const l = s.val(); const div = document.getElementById('lista-lojas-adm'); div.innerHTML = "";
             for(let k in l) {
-                div.innerHTML += `<div class="bg-slate-50 p-3 rounded-xl border flex justify-between items-center mb-2">
-                    <span class="font-bold uppercase text-xs">${k}</span>
-                    <span class="text-blue-600 font-mono text-xs">${l[k].password}</span>
+                div.innerHTML += `
+                <div class="bg-slate-50 p-4 rounded-2xl border flex justify-between items-center">
+                    <div>
+                        <p class="font-black uppercase text-xs text-slate-800">${k}</p>
+                        <p class="text-blue-600 font-mono text-[10px] font-bold">Senha: ${l[k].password}</p>
+                    </div>
+                    <button onclick="resetarSenhaLoja('${k}')" title="Gerar Nova Senha" class="bg-white p-2 rounded-lg shadow-sm border hover:bg-blue-50">
+                        <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                    </button>
                 </div>`;
             }
         }
 
-        function fazerLogoff() {
-            sessionStorage.removeItem('auth_'+storeID);
-            window.location.href = window.location.pathname;
+        async function resetarSenhaLoja(loja) {
+            const nova = Math.floor(10000000 + Math.random() * 90000000);
+            if(confirm(`Deseja gerar nova senha para ${loja}?`)) {
+                await db.ref(`v1/config/${loja}`).update({password: nova.toString()});
+                carregarLojasAdm();
+            }
         }
 
-        // --- INICIALIZAÇÃO ---
+        // --- AUTH ---
+        async function autenticarLoja() {
+            const n = document.getElementById('saas-store-name').value.toLowerCase().trim().replace(/\s+/g, '-');
+            const p = document.getElementById('saas-store-pass').value;
+            const s = await db.ref(`v1/config/${n}`).once('value');
+            if(s.val() && s.val().password === p) {
+                sessionStorage.setItem('auth_'+n, 'true');
+                window.location.href = `?store=${n}`;
+            } else alert("Dados incorretos");
+        }
+
+        function fazerLogoff() { sessionStorage.removeItem('auth_'+storeID); window.location.href = window.location.pathname; }
+
+        // --- INIT ---
         if(storeID && (isMoto || sessionStorage.getItem('auth_'+storeID))) {
             document.getElementById('saas-landing').style.display = 'none';
             document.getElementById('app-wrapper').classList.remove('hidden');
             document.getElementById('store-display').innerText = storeID.toUpperCase();
             document.getElementById('filtroData').valueAsDate = new Date();
-            
-            // Segurança: Se for motoboy, esconde a navegação
-            if(isMoto) {
-                document.getElementById('main-nav').style.display = 'none';
-                changeView('motoboy');
-            } else {
-                changeView('loja'); 
-                renderFilaRealtime(); 
-                renderHistoricoRealtime();
-            }
+            if(isMoto) { document.getElementById('main-nav').style.display = 'none'; changeView('motoboy'); }
+            else { changeView('loja'); renderFilaRealtime(); renderHistoricoRealtime(); }
             setTimeout(gerarQRCode, 400);
         }
 
         function changeView(v) {
             document.getElementById('view-loja').classList.toggle('hidden', v !== 'loja');
             document.getElementById('view-motoboy').classList.toggle('hidden', v !== 'motoboy');
-            const title = document.getElementById('view-title');
-            title.innerText = v === 'motoboy' ? "FILA DE COLETA" : "DASHBOARD";
+            document.getElementById('view-title').innerText = v === 'motoboy' ? "FILA DE COLETA" : "DASHBOARD";
         }
 
         function gerarQRCode() {
@@ -248,7 +239,7 @@
             document.getElementById('print-store-name').innerText = storeID.toUpperCase();
         }
 
-        // --- LÓGICA FILA ---
+        // --- FILA CORE ---
         function setAppMoto(btn, app) {
             document.querySelectorAll('#btn-grid-moto button').forEach(b => b.classList.remove('active'));
             btn.classList.add('active'); appSel = app;
@@ -256,7 +247,7 @@
 
         function registrarEntrada() {
             const p = document.getElementById('inputPedido').value; const n = document.getElementById('inputNome').value;
-            if(!p || !n || !appSel) return alert("Complete os dados!");
+            if(!p || !n || !appSel) return alert("Faltam dados!");
             const id = Date.now();
             db.ref(`v1/lojas/${storeID}/fila/${id}`).set({ id, pedido:p, nome:n, app:appSel, status:'espera', entrada:id, data:new Date().toISOString().split('T')[0] });
             iniciarEsperaMoto(id);
@@ -269,14 +260,8 @@
                 const d = s.val(); if(!d) return;
                 document.getElementById('ticket-pedido').innerText = "#" + d.pedido;
                 document.getElementById('ticket-nome').innerText = d.nome;
-                if(d.mensagem) { 
-                    document.getElementById('loja-msg-container').classList.remove('hidden'); 
-                    document.getElementById('loja-msg-texto').innerText = d.mensagem; 
-                }
-                if(d.status === 'liberado') { 
-                    document.getElementById('btn-coletar').classList.remove('hidden'); 
-                    document.getElementById('snd-ready').play(); 
-                }
+                if(d.mensagem) { document.getElementById('loja-msg-container').classList.remove('hidden'); document.getElementById('loja-msg-texto').innerText = d.mensagem; }
+                if(d.status === 'liberado') { document.getElementById('btn-coletar').classList.remove('hidden'); document.getElementById('snd-ready').play(); }
             });
             setInterval(() => {
                 db.ref(`v1/lojas/${storeID}/fila/${id}`).once('value', s => {
@@ -330,9 +315,9 @@
                 const apps = ['iFood', 'Rappi', '99 Food', 'Keeta', 'Lalamove', 'Uber Eats'];
                 document.getElementById('ranking-container').innerHTML = apps.map(a => {
                     const q = fil.filter(x => x.app === a).length;
-                    return `<div class="${getAppColor(a)} p-6 rounded-[2rem] text-center shadow-sm">
-                        <p class="text-[9px] font-black uppercase opacity-60 mb-1">${a}</p>
-                        <h2 class="text-3xl font-black">${q}</h2>
+                    return `<div class="${getAppColor(a)} p-5 rounded-[1.8rem] text-center shadow-sm">
+                        <p class="text-[8px] font-black uppercase opacity-60 mb-1">${a}</p>
+                        <h2 class="text-2xl font-black">${q}</h2>
                     </div>`;
                 }).join('');
                 document.getElementById('historico-lista').innerHTML = fil.reverse().slice(0, 8).map(x => `
