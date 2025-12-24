@@ -11,7 +11,7 @@
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; overflow-x: hidden; }
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
         
         .card-ifood, .btn-ifood { background-color: #ea1d2c !important; color: white !important; }
         .card-rappi, .btn-rappi { background-color: #ff441f !important; color: white !important; }
@@ -24,18 +24,14 @@
         .btn-brand:hover { transform: translateY(-2px); filter: brightness(1.1); }
         .btn-brand.active { border-color: #3b82f6; }
 
-        .chat-bubble {
-            position: relative; background: #ffffff; border: 2px solid #e2e8f0;
-            border-radius: 1.5rem; padding: 1.2rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        /* QR CODE IMPRESSÃO GIGANTE */
+        @media print { 
+            body * { visibility: hidden; } 
+            #print-area, #print-area * { visibility: visible; } 
+            #print-area { position: absolute; left: 0; top: 0; width: 100%; height: 100%; display: flex !important; flex-direction: column; align-items: center; justify-content: center; background: white; } 
+            #qrcode-print { width: 800px !important; height: 800px !important; }
+            #qrcode-print img { width: 800px !important; height: 800px !important; margin: 0 auto; }
         }
-        .chat-bubble::after {
-            content: ''; position: absolute; bottom: -10px; left: 50%;
-            transform: translateX(-50%); border-width: 10px 10px 0;
-            border-style: solid; border-color: #ffffff transparent transparent;
-        }
-
-        /* Ajuste Foto 1: Garantir que números longos não quebrem */
-        .ticket-number { font-size: clamp(2.5rem, 15vw, 6rem); line-height: 1; word-break: break-all; }
     </style>
 </head>
 <body class="min-h-screen">
@@ -53,20 +49,30 @@
     </div>
 
     <div id="adm-box" class="hidden fixed inset-0 flex items-center justify-center p-6 z-[210] bg-black/90 backdrop-blur-sm">
-        <div class="bg-white p-8 rounded-[2.5rem] max-w-md w-full shadow-2xl">
+        <div class="bg-white p-8 rounded-[2.5rem] max-w-lg w-full shadow-2xl overflow-y-auto max-h-[90vh]">
             <div id="adm-login-form">
-                <h2 class="text-xl font-black mb-6 uppercase text-center">Senha Mestra ADM</h2>
+                <h2 class="text-xl font-black mb-6 uppercase text-center">Acesso Restrito ADM</h2>
                 <input type="password" id="adm-pass" class="w-full border-2 p-4 rounded-xl mb-4 text-center font-bold outline-none focus:border-blue-600">
                 <button onclick="validarAdm()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold uppercase shadow-lg">Entrar no Gestor</button>
                 <button onclick="document.getElementById('adm-box').classList.add('hidden')" class="w-full mt-4 text-slate-400 text-xs font-bold uppercase">Cancelar</button>
             </div>
-            <div id="adm-content" class="hidden">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="font-black uppercase text-blue-600">Gestão de Lojas</h2>
-                    <button onclick="resetarTudo()" class="text-[8px] bg-red-100 text-red-600 px-2 py-1 rounded font-bold uppercase">Reset Geral</button>
+
+            <div id="adm-content" class="hidden space-y-8">
+                <div class="bg-slate-50 p-6 rounded-3xl border-2 border-dashed border-slate-200">
+                    <h3 class="font-black uppercase text-sm mb-4 text-slate-700">Cadastrar Nova Loja</h3>
+                    <div class="grid grid-cols-1 gap-3">
+                        <input type="text" id="new-store-name" placeholder="NOME DA LOJA (Sem espaços)" class="w-full p-3 rounded-xl border font-bold text-sm uppercase">
+                        <input type="text" id="new-store-pass" placeholder="SENHA DA LOJA" class="w-full p-3 rounded-xl border font-bold text-sm">
+                        <button onclick="cadastrarNovaLoja()" class="bg-green-600 text-white font-black py-3 rounded-xl uppercase text-xs hover:bg-green-700">Criar Loja Agora</button>
+                    </div>
                 </div>
-                <div id="lista-lojas-adm" class="space-y-3 max-h-[400px] overflow-y-auto pr-2"></div>
-                <button onclick="location.reload()" class="w-full mt-6 bg-slate-100 text-slate-600 py-4 rounded-2xl font-black uppercase text-xs">Sair do Painel</button>
+
+                <div>
+                    <h3 class="font-black uppercase text-sm mb-4 text-blue-600">Lojas Ativas</h3>
+                    <div id="lista-lojas-adm" class="space-y-3"></div>
+                </div>
+
+                <button onclick="location.reload()" class="w-full bg-slate-800 text-white py-4 rounded-2xl font-black uppercase text-xs">Fechar e Sair</button>
             </div>
         </div>
     </div>
@@ -87,7 +93,7 @@
 
         <main id="view-loja" class="p-6 max-w-7xl mx-auto space-y-8 hidden">
             <div class="grid grid-cols-2 md:grid-cols-6 gap-4" id="ranking-container"></div>
-
+            
             <div class="bg-white p-6 rounded-[2.5rem] shadow-sm border grid grid-cols-1 md:grid-cols-3 items-center gap-8">
                 <div class="flex items-center gap-4">
                     <div id="qrcode" class="bg-white border p-1 rounded-lg"></div>
@@ -109,7 +115,7 @@
                     <div id="lista-loja" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
                 </div>
                 <div>
-                    <h2 class="text-xl font-black text-slate-300 uppercase mb-4 tracking-tighter">Histórico Recente</h2>
+                    <h2 class="text-xl font-black text-slate-300 uppercase mb-4 tracking-tighter">Histórico</h2>
                     <div id="historico-lista" class="space-y-3"></div>
                 </div>
             </div>
@@ -131,27 +137,26 @@
             </div>
 
             <div id="motoboy-status" class="hidden text-center space-y-8">
-                <div id="loja-msg-container" class="hidden chat-bubble animate-bounce">
-                    <p class="text-[9px] font-black text-blue-600 uppercase mb-1">A loja disse:</p>
-                    <span id="loja-msg-texto" class="text-lg font-black text-slate-800 leading-tight"></span>
+                <div id="loja-msg-container" class="hidden p-6 bg-white border-2 rounded-3xl shadow-xl animate-bounce">
+                    <p class="text-[9px] font-black text-blue-600 uppercase mb-1 tracking-widest">Recado da Loja</p>
+                    <span id="loja-msg-texto" class="text-xl font-black text-slate-800 leading-tight"></span>
                 </div>
-
                 <div class="bg-white p-8 rounded-[3rem] shadow-2xl border-4 border-slate-50">
-                    <h3 id="ticket-pedido" class="ticket-number font-black text-black">#0</h3>
-                    <p id="ticket-nome" class="text-xl font-bold text-slate-400 uppercase mt-2 truncate px-4"></p>
+                    <h3 id="ticket-pedido" class="text-7xl font-black text-black leading-none">#0</h3>
+                    <p id="ticket-nome" class="text-xl font-bold text-slate-400 uppercase mt-2 truncate"></p>
                     <div class="bg-slate-50 rounded-3xl p-6 mt-8">
                         <p id="timer-moto" class="text-6xl font-mono font-black text-black">00:00</p>
                     </div>
                 </div>
-                <button id="btn-coletar" onclick="confirmarColetaFinal()" class="hidden w-full bg-green-600 text-white font-black py-8 rounded-[2.5rem] text-3xl shadow-2xl uppercase animate-pulse">Confirme a Coleta</button>
+                <button id="btn-coletar" onclick="confirmarColetaFinal()" class="hidden w-full bg-green-600 text-white font-black py-8 rounded-[2.5rem] text-2xl shadow-2xl uppercase animate-pulse">Confirme a Coleta</button>
             </div>
         </main>
     </div>
 
     <div id="print-area" class="hidden">
-        <h1 style="font-size: 50px; font-weight: 900;" id="print-store-name">LOJA</h1>
-        <div id="qrcode-print" style="margin: 40px 0;"></div>
-        <p style="font-size: 25px; font-weight: 900; text-transform: uppercase;">Aproxime a câmera para entrar na fila</p>
+        <h1 style="font-size: 60px; font-weight: 900; margin-bottom: 20px;" id="print-store-name">LOJA</h1>
+        <div id="qrcode-print"></div>
+        <p style="font-size: 30px; font-weight: 900; text-transform: uppercase; margin-top: 30px;">Escaneie para entrar na fila</p>
     </div>
 
     <audio id="snd-ready" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3" preload="auto" loop></audio>
@@ -166,7 +171,7 @@
         let storeID = urlParams.get('store');
         let isMoto = urlParams.get('v') === 'moto';
 
-        // --- ADM LOGIC (Ajuste Foto 2) ---
+        // --- ADM LOGIC ---
         function abrirAdm() { document.getElementById('adm-box').classList.remove('hidden'); }
         function validarAdm() {
             if(document.getElementById('adm-pass').value === "290519") {
@@ -186,19 +191,45 @@
                         <p class="font-black uppercase text-xs text-slate-800">${k}</p>
                         <p class="text-blue-600 font-mono text-[10px] font-bold">Senha: ${l[k].password}</p>
                     </div>
-                    <button onclick="resetarSenhaLoja('${k}')" title="Gerar Nova Senha" class="bg-white p-2 rounded-lg shadow-sm border hover:bg-blue-50">
-                        <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
-                    </button>
+                    <div class="flex gap-2">
+                        <button onclick="editarSenhaLoja('${k}')" class="bg-white p-2 rounded-lg border hover:text-blue-600">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                        </button>
+                        <button onclick="removerLoja('${k}')" class="p-2 text-red-400 hover:text-red-600">×</button>
+                    </div>
                 </div>`;
             }
         }
 
-        async function resetarSenhaLoja(loja) {
-            const nova = Math.floor(10000000 + Math.random() * 90000000);
-            if(confirm(`Deseja gerar nova senha para ${loja}?`)) {
-                await db.ref(`v1/config/${loja}`).update({password: nova.toString()});
+        async function editarSenhaLoja(loja) {
+            const nova = prompt(`Digite a nova senha para ${loja}:`);
+            if(nova) {
+                await db.ref(`v1/config/${loja}`).update({password: nova});
+                alert("Senha alterada!"); carregarLojasAdm();
+            }
+        }
+
+        async function removerLoja(loja) {
+            if(confirm(`ATENÇÃO: Deseja excluir a loja ${loja} permanentemente?`)) {
+                await db.ref(`v1/config/${loja}`).remove();
+                await db.ref(`v1/lojas/${loja}`).remove();
                 carregarLojasAdm();
             }
+        }
+
+        async function cadastrarNovaLoja() {
+            const nome = document.getElementById('new-store-name').value.toLowerCase().trim().replace(/\s+/g, '-');
+            const senha = document.getElementById('new-store-pass').value;
+            if(!nome || !senha) return alert("Preencha Nome e Senha!");
+            
+            const check = await db.ref(`v1/config/${nome}`).once('value');
+            if(check.val()) return alert("Esta loja já existe!");
+
+            await db.ref(`v1/config/${nome}`).set({ password: senha });
+            alert("LOJA CADASTRADA COM SUCESSO!");
+            document.getElementById('new-store-name').value = "";
+            document.getElementById('new-store-pass').value = "";
+            carregarLojasAdm();
         }
 
         // --- AUTH ---
@@ -209,9 +240,8 @@
             if(s.val() && s.val().password === p) {
                 sessionStorage.setItem('auth_'+n, 'true');
                 window.location.href = `?store=${n}`;
-            } else alert("Dados incorretos");
+            } else alert("Loja ou Senha incorretos");
         }
-
         function fazerLogoff() { sessionStorage.removeItem('auth_'+storeID); window.location.href = window.location.pathname; }
 
         // --- INIT ---
@@ -222,7 +252,7 @@
             document.getElementById('filtroData').valueAsDate = new Date();
             if(isMoto) { document.getElementById('main-nav').style.display = 'none'; changeView('motoboy'); }
             else { changeView('loja'); renderFilaRealtime(); renderHistoricoRealtime(); }
-            setTimeout(gerarQRCode, 400);
+            setTimeout(gerarQRCode, 500);
         }
 
         function changeView(v) {
@@ -234,8 +264,9 @@
         function gerarQRCode() {
             const url = window.location.origin + window.location.pathname + "?store=" + storeID + "&v=moto";
             document.getElementById("qrcode").innerHTML = ""; document.getElementById("qrcode-print").innerHTML = "";
-            new QRCode(document.getElementById("qrcode"), { text: url, width: 70, height: 70 });
-            new QRCode(document.getElementById("qrcode-print"), { text: url, width: 550, height: 550 });
+            new QRCode(document.getElementById("qrcode"), { text: url, width: 75, height: 75 });
+            // QR CODE GIGANTE PARA IMPRESSÃO
+            new QRCode(document.getElementById("qrcode-print"), { text: url, width: 800, height: 800 });
             document.getElementById('print-store-name').innerText = storeID.toUpperCase();
         }
 
