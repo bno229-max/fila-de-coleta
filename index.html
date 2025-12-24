@@ -18,9 +18,11 @@
         .card-lalamove, .btn-lalamove { background-color: #f60 !important; color: white !important; }
         .card-ubereats, .btn-ubereats { background-color: #000 !important; color: white !important; }
         
-        .btn-brand { transition: all 0.2s; cursor: pointer; border: 2px solid transparent; }
-        
-        /* Animação Pulsar para o Botão Coletar */
+        /* Efeito de Ressalto nos Botões */
+        .btn-brand { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; border: 2px solid transparent; }
+        .btn-brand:hover { transform: translateY(-3px) scale(1.03); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2); filter: brightness(1.1); }
+        .btn-brand:active { transform: scale(0.95); }
+
         .animate-pulse-custom { animation: pulse-custom 1.5s infinite; }
         @keyframes pulse-custom {
             0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.7); }
@@ -43,15 +45,15 @@
             <div class="space-y-4">
                 <input type="text" id="saas-store-name" placeholder="Nome da Loja" class="w-full border-2 border-slate-100 p-4 rounded-2xl outline-none focus:border-blue-500 font-bold uppercase">
                 <input type="password" id="saas-store-pass" placeholder="Senha" class="w-full border-2 border-slate-100 p-4 rounded-2xl outline-none focus:border-blue-500 font-bold">
-                <button onclick="autenticarLoja()" class="w-full bg-blue-600 text-white font-black py-5 rounded-2xl shadow-xl hover:bg-blue-700 transition">ENTRAR / CRIAR</button>
+                <button onclick="autenticarLoja()" class="w-full bg-blue-600 text-white font-black py-5 rounded-2xl shadow-xl hover:bg-blue-700 transition">ACESSAR SISTEMA</button>
             </div>
         </div>
     </div>
 
     <nav id="app-nav" class="hidden bg-white border-b border-slate-200 px-4 py-3 flex justify-between items-center shadow-sm sticky top-0 z-50 no-print">
         <div class="flex items-center gap-2">
-            <span id="nav-title" class="font-black text-slate-800 uppercase text-xs sm:text-lg tracking-tighter">
-                <span id="store-display" class="text-blue-600">LOJA</span> - DASHBOARD
+            <span id="nav-title-text" class="font-black text-slate-800 uppercase text-xs sm:text-lg tracking-tighter">
+                <span id="store-display" class="text-blue-600">NOME</span> - <span id="view-title">DASHBOARD</span>
             </span>
         </div>
         <div id="toggle-view" class="flex gap-1 bg-slate-100 p-1 rounded-full">
@@ -88,41 +90,44 @@
                     <div class="bg-slate-50 rounded-3xl p-6 mb-8">
                         <p id="timer-moto" class="text-5xl font-mono font-bold text-slate-700">00:00</p>
                     </div>
-                    <div id="badge-status-moto" class="font-bold text-slate-400 uppercase italic">Aguardando...</div>
+                    <div id="badge-status-moto" class="font-bold text-slate-400 uppercase italic">Aguardando Cozinha...</div>
                 </div>
                 <button id="btn-finalizar" onclick="confirmarColetaFinal()" class="hidden w-full mt-8 bg-green-600 text-white font-black py-8 rounded-[2.5rem] text-4xl shadow-2xl uppercase animate-pulse-custom">COLETAR</button>
             </div>
         </main>
 
-        <main id="view-loja" class="hidden p-6 max-w-7xl mx-auto space-y-8 no-print">
-            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3" id="ranking-apps">
-                <div class="bg-white p-4 rounded-3xl border shadow-sm text-center">
-                    <p class="text-[10px] font-black text-slate-400 uppercase">Média</p>
-                    <h2 id="media-espera" class="text-2xl font-black text-green-600">0s</h2>
-                </div>
+        <main id="view-loja" class="hidden p-6 max-w-7xl mx-auto space-y-6 no-print">
+            
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4" id="ranking-apps-only">
                 </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center bg-white p-6 rounded-[2.5rem] border shadow-sm">
-                <div class="flex items-center gap-6">
-                    <div id="qrcode" class="p-2 border-2 border-slate-50 rounded-2xl bg-white"></div>
+            <div class="bg-white p-6 rounded-[2.5rem] border shadow-sm flex flex-col md:flex-row items-center justify-between gap-6">
+                <div class="flex items-center gap-4">
+                    <div id="qrcode" class="p-1 border-2 border-slate-50 rounded-xl bg-white"></div>
                     <div>
-                        <p class="text-xs font-black text-slate-400 uppercase mb-2">Configuração da Loja</p>
-                        <button onclick="window.print()" class="bg-slate-900 text-white font-black py-3 px-6 rounded-full text-[10px] uppercase">Imprimir QR A4</button>
+                        <p class="text-[10px] font-black text-slate-400 uppercase leading-none mb-2">Configuração</p>
+                        <button onclick="window.print()" class="bg-slate-900 text-white font-black py-3 px-5 rounded-full text-[9px] uppercase hover:bg-slate-700 transition">Imprimir A4</button>
                     </div>
                 </div>
+
+                <div class="text-center px-8 border-x border-slate-100 hidden md:block">
+                    <p class="text-[10px] font-black text-slate-400 uppercase mb-1 tracking-widest">Tempo Médio</p>
+                    <h2 id="media-espera" class="text-5xl font-black text-green-600 tracking-tighter">0s</h2>
+                </div>
+
                 <div class="flex flex-col items-end">
-                    <p class="text-xs font-black text-slate-400 uppercase mb-2">Filtrar por Data</p>
-                    <input type="date" id="filtroData" onchange="renderHistoricoRealtime()" class="bg-slate-50 p-3 rounded-xl border font-bold text-sm outline-none shadow-inner">
+                    <p class="text-[10px] font-black text-slate-400 uppercase mb-2 mr-2">Filtrar por Data</p>
+                    <input type="date" id="filtroData" onchange="renderHistoricoRealtime()" class="bg-slate-50 p-3 rounded-xl border font-bold text-xs outline-none shadow-inner">
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 pt-4">
                 <div class="lg:col-span-2 space-y-4">
-                    <h2 class="text-xl font-black text-slate-800 uppercase tracking-tighter">Fila de Espera</h2>
+                    <h2 class="text-xl font-black text-slate-800 uppercase tracking-tighter ml-2">Fila de Espera Ativa</h2>
                     <div id="lista-loja" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
                 </div>
                 <div class="space-y-4">
-                    <h2 class="text-xl font-black text-slate-400 uppercase tracking-tighter">Últimas Coletas</h2>
+                    <h2 class="text-xl font-black text-slate-400 uppercase tracking-tighter ml-2">Histórico Hoje</h2>
                     <div id="historico-lista" class="space-y-3"></div>
                 </div>
             </div>
@@ -184,17 +189,22 @@
         function inicializarApp() {
             gerarQRCode();
             document.getElementById('filtroData').valueAsDate = new Date();
-            if(isMotoView) document.getElementById('toggle-view').classList.add('hidden');
+            if(isMotoView) {
+                document.getElementById('toggle-view').classList.add('hidden');
+                document.getElementById('view-title').innerText = "FILA DE COLETA";
+            }
         }
 
         function setAppMoto(btn, nome) {
-            document.querySelectorAll('#btn-grid-moto button').forEach(b => b.classList.remove('ring-4', 'ring-blue-400'));
-            appSelecionado = nome; btn.classList.add('ring-4', 'ring-blue-400');
+            document.querySelectorAll('#btn-grid-moto button').forEach(b => b.classList.remove('ring-4', 'ring-blue-500'));
+            appSelecionado = nome; btn.classList.add('ring-4', 'ring-blue-500');
         }
 
         function changeView(view) {
             document.getElementById('view-motoboy').style.display = view === 'loja' ? 'none' : 'block';
             document.getElementById('view-loja').style.display = view === 'loja' ? 'block' : 'none';
+            document.getElementById('view-title').innerText = view === 'loja' ? "DASHBOARD" : "FILA DE COLETA";
+            
             document.getElementById('nav-moto').className = view === 'motoboy' ? "px-4 py-2 rounded-full transition bg-green-600 text-white uppercase text-[10px] font-bold shadow-sm" : "px-4 py-2 rounded-full transition text-slate-600 uppercase text-[10px] font-bold";
             document.getElementById('nav-loja').className = view === 'loja' ? "px-4 py-2 rounded-full transition bg-blue-600 text-white uppercase text-[10px] font-bold shadow-sm" : "px-4 py-2 rounded-full transition text-slate-600 uppercase text-[10px] font-bold";
             if(view === 'loja') { renderFilaRealtime(); renderHistoricoRealtime(); }
@@ -218,7 +228,7 @@
                 document.getElementById('ticket-nome').innerText = p.nome;
                 if(p.mensagem) { document.getElementById('loja-msg-container').classList.remove('hidden'); document.getElementById('loja-msg-texto').innerText = p.mensagem; }
                 if(p.status === 'liberado') {
-                    document.getElementById('badge-status-moto').innerText = "✅ LIBERADO!";
+                    document.getElementById('badge-status-moto').innerText = "✅ LIBERADO PARA COLETA!";
                     document.getElementById('btn-finalizar').classList.remove('hidden');
                     const audio = document.getElementById('snd-ready'); audio.loop = true; audio.play().catch(()=>{});
                 }
@@ -263,10 +273,10 @@
                             <button onclick="document.getElementById('opt-${p.id}').classList.toggle('hidden')" class="bg-black/10 text-white font-black py-2 rounded-xl text-[10px] uppercase">Mensagem</button>
                         </div>
                         <div id="opt-${p.id}" class="hidden mt-3 bg-white p-3 rounded-2xl">
-                            <input type="text" id="in-msg-${p.id}" placeholder="Msg..." class="w-full text-slate-800 p-2 text-xs border rounded-lg mb-2 outline-none">
-                            <button onclick="enviarMsgLivre(${p.id})" class="w-full bg-blue-600 text-white py-2 rounded-lg text-[9px] font-black uppercase">Enviar</button>
+                            <input type="text" id="in-msg-${p.id}" placeholder="Digitar..." class="w-full text-slate-800 p-2 text-xs border rounded-lg mb-2 outline-none">
+                            <button onclick="enviarMsgLivre(${p.id})" class="w-full bg-blue-600 text-white py-2 rounded-lg text-[9px] font-black uppercase">Enviar Agora</button>
                         </div>
-                    </div>`).join('') || '<p class="text-slate-400 font-bold italic">Sem motoboys na fila.</p>';
+                    </div>`).join('') || '<p class="text-slate-400 font-bold italic ml-2">Sem motoboys na fila no momento.</p>';
             });
         }
 
@@ -281,39 +291,34 @@
                 const hist = snap.val() ? Object.values(snap.val()) : [];
                 const filtrado = hist.filter(h => h.data === dataFiltro);
                 
-                // Média
                 if(filtrado.length > 0) {
                     const soma = filtrado.reduce((acc, curr) => acc + (curr.segundosTotais || 0), 0);
                     const media = Math.round(soma / filtrado.length);
                     document.getElementById('media-espera').innerText = media < 60 ? media + "s" : Math.floor(media/60) + "m " + (media%60) + "s";
                 } else { document.getElementById('media-espera').innerText = "0s"; }
 
-                // Ranking
                 let rankingHTML = '';
                 appsInfo.forEach(app => {
                     const qtd = filtrado.filter(h => h.app === app.n).length;
                     rankingHTML += `
-                        <div class="${app.c} p-4 rounded-3xl shadow-sm text-center">
-                            <p class="text-[9px] font-black uppercase opacity-70">${app.n}</p>
-                            <h2 class="text-xl font-black">${qtd}</h2>
+                        <div class="${app.c} p-5 rounded-[2rem] shadow-sm text-center">
+                            <p class="text-[9px] font-black uppercase opacity-70 mb-1 leading-none">${app.n}</p>
+                            <h2 class="text-3xl font-black leading-none">${qtd}</h2>
                         </div>`;
                 });
-                const rContainer = document.getElementById('ranking-apps');
-                const mediaDiv = rContainer.firstElementChild.outerHTML;
-                rContainer.innerHTML = mediaDiv + rankingHTML;
+                document.getElementById('ranking-apps-only').innerHTML = rankingHTML;
 
-                // Lista
                 document.getElementById('historico-lista').innerHTML = filtrado.reverse().slice(0, 8).map(h => `
                     <div class="bg-white p-4 rounded-2xl border flex justify-between items-center text-[10px] shadow-sm">
-                        <div><p class="font-black">#${h.pedido} - ${h.nome}</p><p class="text-green-600 font-bold">${h.tempoEspera || '0s'}</p></div>
+                        <div><p class="font-black text-slate-700 uppercase tracking-tighter">#${h.pedido} - ${h.nome}</p><p class="text-green-600 font-bold">Coletado em ${h.tempoEspera || '0s'}</p></div>
                         <button onclick="db.ref('v1/lojas/${storeID}/historico/${h.id}').remove()" class="text-red-400 text-lg font-bold">×</button>
-                    </div>`).join('');
+                    </div>`).join('') || '<p class="text-slate-300 italic ml-2">Histórico vazio.</p>';
             });
         }
 
         function gerarQRCode() {
             const url = window.location.origin + window.location.pathname + "?store=" + storeID + "&v=moto";
-            document.getElementById("qrcode").innerHTML = ""; new QRCode(document.getElementById("qrcode"), { text: url, width: 80, height: 80 });
+            document.getElementById("qrcode").innerHTML = ""; new QRCode(document.getElementById("qrcode"), { text: url, width: 60, height: 60 });
             document.getElementById("qrcode-print").innerHTML = ""; new QRCode(document.getElementById("qrcode-print"), { text: url, width: 450, height: 450 });
         }
     </script>
