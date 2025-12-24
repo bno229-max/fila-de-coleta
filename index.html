@@ -12,42 +12,35 @@
 
     <style>
         body { font-family: 'Inter', sans-serif; }
-        
-        /* Cores dos Cards e Botões */
         .card-ifood, .btn-ifood { background-color: #ea1d2c; color: white; }
         .card-rappi, .btn-rappi { background-color: #ff441f; color: white; }
         .card-99food, .btn-99food { background-color: #ffc107; color: #4d3a00; }
         .card-keeta, .btn-keeta { background-color: #004d40; color: white; }
         .card-lalamove, .btn-lalamove { background-color: #f60; color: white; }
         .card-ubereats, .btn-ubereats { background-color: #000; color: white; }
-        
-        /* Borda padrão para botões não selecionados */
         .btn-brand { border: 2px solid #e2e8f0; transition: all 0.2s; cursor: pointer; }
-        
-        .fade-in { animation: fadeIn 0.5s ease-out forwards; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes pulse-green {
             0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.7); }
             70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(22, 163, 74, 0); }
             100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(22, 163, 74, 0); }
         }
         .animate-pulse-btn { animation: pulse-green 1.5s infinite; }
-        @media print { .no-print { display: none !important; } }
+        .msg-bubble { animation: bounce 0.5s ease-in-out; }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen pb-10">
 
-    <nav id="navbar" class="bg-white sticky top-0 z-50 border-b border-slate-200 px-4 py-3 flex justify-between items-center shadow-sm no-print">
+    <nav class="bg-white sticky top-0 z-50 border-b border-slate-200 px-4 py-3 flex justify-between items-center shadow-sm no-print">
         <div class="flex items-center gap-3">
-            <span id="status-conexao" class="flex items-center gap-1.5 bg-green-100 text-green-700 text-[9px] font-bold px-2 py-1 rounded-full uppercase">
-                <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span> ONLINE
-            </span>
-            <span id="nav-title" class="font-black text-lg tracking-tight text-slate-800 uppercase text-xs sm:text-lg">Fila de Coleta</span>
+            <span id="status-conexao" class="text-[9px] font-bold px-2 py-1 rounded-full uppercase flex items-center gap-1"></span>
+            <span id="nav-title" class="font-black text-slate-800 uppercase text-xs sm:text-lg">Fila de Coleta</span>
         </div>
-        <div id="toggle-view" class="flex gap-1 bg-slate-100 p-1 rounded-full text-[10px] font-bold">
-            <button onclick="changeView('motoboy')" id="nav-moto" class="px-4 py-2 rounded-full transition bg-green-600 text-white uppercase text-xs">Motoboy</button>
-            <button onclick="changeView('loja')" id="nav-loja" class="px-4 py-2 rounded-full transition text-slate-600 uppercase text-xs">Loja</button>
+        <div id="toggle-view" class="flex gap-1 bg-slate-100 p-1 rounded-full">
+            <button onclick="changeView('motoboy')" id="nav-moto" class="px-4 py-2 rounded-full transition bg-green-600 text-white uppercase text-xs font-bold">Motoboy</button>
+            <button onclick="changeView('loja')" id="nav-loja" class="px-4 py-2 rounded-full transition text-slate-600 uppercase text-xs font-bold">Loja</button>
         </div>
     </nav>
 
@@ -69,6 +62,13 @@
         </div>
 
         <div id="motoboy-status" class="hidden py-10">
+            <div id="loja-msg-container" class="hidden mb-6 msg-bubble">
+                <div class="bg-blue-600 text-white p-4 rounded-2xl shadow-lg text-center font-bold relative">
+                    <span id="loja-msg-texto"></span>
+                    <div class="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-blue-600 rotate-45"></div>
+                </div>
+            </div>
+
             <div class="bg-white p-10 rounded-[2.5rem] shadow-2xl text-center border-4 border-dashed border-slate-200">
                 <h3 id="ticket-pedido" class="text-6xl font-black text-slate-800 mb-2">#0000</h3>
                 <p id="ticket-nome" class="text-xl font-bold text-slate-500 mb-2"></p>
@@ -77,7 +77,7 @@
                     <p class="text-[10px] font-bold text-slate-400 uppercase">Tempo em Espera</p>
                     <p id="timer-moto" class="text-3xl font-mono font-bold text-slate-700">00:00</p>
                 </div>
-                <div id="badge-status-moto" class="font-bold text-slate-500 uppercase italic">Logo você será Chamado...</div>
+                <div id="badge-status-moto" class="font-bold text-slate-500 uppercase italic">Aguardando Cozinha...</div>
             </div>
             <button id="btn-finalizar" onclick="confirmarColetaFinal()" class="hidden w-full mt-8 bg-green-600 text-white font-black py-7 rounded-3xl text-3xl shadow-2xl uppercase animate-pulse-btn">COLETAR</button>
         </div>
@@ -86,43 +86,30 @@
     <main id="view-loja" class="hidden p-6 max-w-7xl mx-auto space-y-6 no-print fade-in">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="bg-white p-8 rounded-3xl shadow-sm border text-center flex flex-col justify-center">
-                <p class="text-[10px] font-black text-slate-400 uppercase mb-2 tracking-widest">Média de Espera Hoje</p>
-                <h2 id="media-espera" class="text-6xl font-black text-green-600">0<span class="text-xl">min</span></h2>
+                <p class="text-[10px] font-black text-slate-400 uppercase mb-2">Média de Espera (Hoje)</p>
+                <h2 id="media-espera" class="text-6xl font-black text-green-600">0s</h2>
             </div>
             <div class="bg-white p-6 rounded-3xl shadow-sm border flex items-center justify-around">
                 <div class="text-center">
-                    <p class="text-[10px] font-black text-slate-400 uppercase mb-3">QR Code para Fila</p>
+                    <p class="text-[10px] font-black text-slate-400 uppercase mb-3">QR Code Fila</p>
                     <button onclick="window.print()" class="text-[10px] bg-slate-900 text-white font-bold py-3 px-6 rounded-full uppercase">Imprimir A4</button>
                 </div>
-                <div id="qrcode" class="p-2 bg-white border-2 border-slate-100 rounded-2xl"></div>
+                <div id="qrcode" class="p-2 border-2 rounded-2xl"></div>
             </div>
-        </div>
-
-        <div class="bg-white p-6 rounded-3xl shadow-sm border">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="font-black text-slate-800 uppercase text-xs tracking-widest">Resumo de Volume</h3>
-                <input type="date" id="filtroData" onchange="renderHistoricoRealtime()" class="bg-slate-50 text-xs font-bold rounded-lg p-2 outline-none text-green-600 border">
-            </div>
-            <div id="ranking-container" class="grid grid-cols-3 md:grid-cols-6 gap-3"></div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div class="lg:col-span-2 space-y-4">
-                <h2 class="text-xl font-black text-slate-800 uppercase tracking-tighter">Pedidos em Preparo</h2>
+                <h2 class="text-xl font-black text-slate-800 uppercase">Fila Atual</h2>
                 <div id="lista-loja" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
             </div>
             <div class="space-y-4">
-                <h2 class="text-xl font-black text-slate-400 uppercase tracking-tighter">Últimas Coletas</h2>
+                <h2 class="text-xl font-black text-slate-400 uppercase tracking-tighter">Histórico do Dia</h2>
+                <input type="date" id="filtroData" onchange="renderHistoricoRealtime()" class="w-full bg-white p-2 text-xs font-bold rounded-lg border mb-2">
                 <div id="historico-lista" class="space-y-3"></div>
             </div>
         </div>
     </main>
-
-    <div class="hidden print:flex flex-col items-center justify-center min-h-screen text-center p-10">
-        <h1 class="text-6xl font-black mb-2 uppercase">Fila de Coleta</h1>
-        <p class="text-2xl text-slate-500 font-bold mb-10 tracking-[0.2em]">ESCANEIE PARA ENTRAR NA FILA</p>
-        <div id="qrcode-print" class="border-[15px] border-slate-900 p-10 rounded-[4rem]"></div>
-    </div>
 
     <audio id="snd-ready" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3" preload="auto"></audio>
 
@@ -141,82 +128,42 @@
         const snd = document.getElementById('snd-ready');
         
         db.ref(".info/connected").on("value", (snap) => {
-            const statusEl = document.getElementById('status-conexao');
-            if (snap.val() === true) {
-                statusEl.innerHTML = '<span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span> ONLINE';
-                statusEl.className = "flex items-center gap-1.5 bg-green-100 text-green-700 text-[9px] font-bold px-2 py-1 rounded-full uppercase";
-            } else {
-                statusEl.innerHTML = '<span class="w-2 h-2 bg-red-500 rounded-full"></span> OFFLINE';
-                statusEl.className = "flex items-center gap-1.5 bg-red-100 text-red-700 text-[9px] font-bold px-2 py-1 rounded-full uppercase";
-            }
+            const el = document.getElementById('status-conexao');
+            el.innerHTML = snap.val() ? '<span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span> ONLINE' : '<span class="w-2 h-2 bg-red-500 rounded-full"></span> OFFLINE';
+            el.className = snap.val() ? "bg-green-100 text-green-700 p-1 px-2 rounded-full uppercase flex items-center gap-1" : "bg-red-100 text-red-700 p-1 px-2 rounded-full uppercase flex items-center gap-1";
         });
 
         const params = new URLSearchParams(window.location.search);
-        if(params.get('v') === 'moto') {
-            document.getElementById('toggle-view').style.display = 'none';
-        }
+        if(params.get('v') === 'moto') document.getElementById('toggle-view').style.display = 'none';
 
-        document.getElementById('filtroData').valueAsDate = new Date();
         let appSelecionado = "";
         let meuIdAtual = null;
-
-        const brandClasses = {
-            'iFood': 'btn-ifood', 'Rappi': 'btn-rappi', '99 Food': 'btn-99food',
-            'Keeta': 'btn-keeta', 'Lalamove': 'btn-lalamove', 'Uber Eats': 'btn-ubereats'
-        };
-
-        const cardClasses = {
-            'iFood': 'card-ifood', 'Rappi': 'card-rappi', '99 Food': 'card-99food',
-            'Keeta': 'card-keeta', 'Lalamove': 'card-lalamove', 'Uber Eats': 'card-ubereats'
-        };
+        const brandClasses = { 'iFood': 'btn-ifood', 'Rappi': 'btn-rappi', '99 Food': 'btn-99food', 'Keeta': 'btn-keeta', 'Lalamove': 'btn-lalamove', 'Uber Eats': 'btn-ubereats' };
+        const cardClasses = { 'iFood': 'card-ifood', 'Rappi': 'card-rappi', '99 Food': 'card-99food', 'Keeta': 'card-keeta', 'Lalamove': 'card-lalamove', 'Uber Eats': 'card-ubereats' };
 
         function setApp(btn, nome) {
-            // Resetar todos os botões para o estilo padrão (letras coloridas, fundo branco)
             document.querySelectorAll('.btn-brand').forEach(b => {
-                b.className = 'btn-brand p-4 rounded-2xl font-bold';
-                if(b.id === 'btn-iFood') b.classList.add('text-red-600');
-                if(b.id === 'btn-Rappi') b.classList.add('text-orange-600');
-                if(b.id === 'btn-99Food') b.classList.add('text-amber-500');
-                if(b.id === 'btn-Keeta') b.classList.add('text-teal-800');
-                if(b.id === 'btn-Lalamove') b.classList.add('text-orange-500');
-                if(b.id === 'btn-UberEats') b.classList.add('text-black');
+                b.className = 'btn-brand p-4 rounded-2xl font-bold ' + (b.id.includes('iFood') ? 'text-red-600' : b.id.includes('Rappi') ? 'text-orange-600' : b.id.includes('99') ? 'text-amber-500' : b.id.includes('Keeta') ? 'text-teal-800' : b.id.includes('Lala') ? 'text-orange-500' : 'text-black');
             });
-
             appSelecionado = nome;
-            // Aplicar cor de fundo sólida no selecionado
-            btn.classList.remove('text-red-600', 'text-orange-600', 'text-amber-500', 'text-teal-800', 'text-orange-500', 'text-black');
             btn.classList.add(brandClasses[nome]);
+            btn.classList.remove('text-red-600', 'text-orange-600', 'text-amber-500', 'text-teal-800', 'text-orange-500', 'text-black');
         }
 
         function changeView(view) {
-            const vMoto = document.getElementById('view-motoboy');
-            const vLoja = document.getElementById('view-loja');
-            const title = document.getElementById('nav-title');
-            if(view === 'loja') {
-                vMoto.style.display = 'none'; vLoja.style.display = 'block';
-                title.innerText = "Fila de Coleta - Dashboard";
-                document.getElementById('nav-loja').classList.add('bg-slate-900', 'text-white');
-                document.getElementById('nav-moto').classList.remove('bg-green-600', 'text-white');
-                gerarQRCode(); renderFilaRealtime(); renderHistoricoRealtime();
-            } else {
-                vMoto.style.display = 'block'; vLoja.style.display = 'none';
-                title.innerText = "Fila de Coleta";
-                document.getElementById('nav-moto').classList.add('bg-green-600', 'text-white');
-                document.getElementById('nav-loja').classList.remove('bg-slate-900', 'text-white');
-            }
+            document.getElementById('view-motoboy').style.display = view === 'loja' ? 'none' : 'block';
+            document.getElementById('view-loja').style.display = view === 'loja' ? 'block' : 'none';
+            document.getElementById('nav-title').innerText = view === 'loja' ? "Fila de Coleta - Dashboard" : "Fila de Coleta";
+            if(view === 'loja') { gerarQRCode(); renderFilaRealtime(); renderHistoricoRealtime(); }
         }
 
         function registrarEntrada() {
             const num = document.getElementById('inputPedido').value;
             const nome = document.getElementById('inputNome').value;
-            if(!num || !appSelecionado || !nome) return alert("Preencha todos os campos!");
+            if(!num || !appSelecionado || !nome) return alert("Preencha tudo!");
             snd.play().then(() => { snd.pause(); snd.currentTime = 0; }).catch(() => {});
             const id = Date.now();
-            db.ref('fila/' + id).set({ 
-                id, pedido: num, nome, app: appSelecionado, 
-                status: 'preparando', entrada: id, 
-                data: new Date().toISOString().split('T')[0] 
-            });
+            db.ref('fila/' + id).set({ id, pedido: num, nome, app: appSelecionado, status: 'preparando', entrada: id, data: new Date().toISOString().split('T')[0] });
             meuIdAtual = id;
             iniciarTelaEspera();
         }
@@ -230,8 +177,15 @@
                 document.getElementById('ticket-pedido').innerText = "#" + p.pedido;
                 document.getElementById('ticket-nome').innerText = p.nome;
                 document.getElementById('ticket-app').innerText = p.app;
+                
+                // Monitor de Mensagens
+                if(p.mensagem) {
+                    document.getElementById('loja-msg-container').classList.remove('hidden');
+                    document.getElementById('loja-msg-texto').innerText = p.mensagem;
+                }
+
                 if(p.status === 'liberado') {
-                    document.getElementById('badge-status-moto').innerText = "✅ COZINHA LIBEROU!";
+                    document.getElementById('badge-status-moto').innerText = "✅ PEDIDO LIBERADO!";
                     document.getElementById('btn-finalizar').classList.remove('hidden');
                     snd.loop = true; snd.play();
                 }
@@ -254,15 +208,18 @@
             db.ref('fila/' + meuIdAtual).once('value', (snap) => {
                 const p = snap.val();
                 if(p) {
-                    const diffMs = Date.now() - p.entrada;
-                    const mins = Math.round(diffMs / 60000); // Arredonda para o minuto mais próximo
-                    p.minutosEspera = mins;
-                    p.tempoEspera = Math.floor(diffMs/60000) + "m " + Math.floor((diffMs%60000)/1000) + "s";
+                    p.segundosTotais = Math.floor((Date.now() - p.entrada) / 1000);
+                    p.tempoEspera = Math.floor(p.segundosTotais/60) + "m " + (p.segundosTotais%60) + "s";
                     db.ref('historico/' + meuIdAtual).set(p);
                     db.ref('fila/' + meuIdAtual).remove();
                 }
                 location.reload();
             });
+        }
+
+        function enviarMensagem(id, msg) {
+            db.ref('fila/' + id).update({ mensagem: msg });
+            alert("Mensagem enviada!");
         }
 
         function renderFilaRealtime() {
@@ -272,37 +229,38 @@
                     <div class="p-6 rounded-3xl shadow-lg border-2 relative fade-in ${cardClasses[p.app]}">
                         <span class="text-[10px] font-black uppercase opacity-70">${p.app}</span>
                         <h3 class="text-4xl font-black mt-1">#${p.pedido}</h3>
-                        <p class="text-md font-bold mb-5 uppercase opacity-90">${p.nome}</p>
-                        ${p.status === 'preparando' ? `<button onclick="liberarPedidoLoja(${p.id})" class="w-full bg-white text-slate-900 font-black py-3 rounded-xl uppercase text-xs">Liberar</button>` : `<div class="bg-black/20 text-white py-3 rounded-xl font-bold text-center text-xs uppercase italic">Chamando...</div>`}
-                    </div>`).join('') || '<p class="text-slate-400 font-bold text-xs uppercase italic">Nenhum motoboy na fila.</p>';
+                        <p class="text-md font-bold mb-4 uppercase opacity-90">${p.nome}</p>
+                        <div class="grid grid-cols-2 gap-2">
+                            ${p.status === 'preparando' ? `<button onclick="liberarPedidoLoja(${p.id})" class="bg-white text-slate-900 font-black py-3 rounded-xl uppercase text-[10px]">Liberar</button>` : `<div class="bg-black/20 text-white py-3 rounded-xl font-bold text-center text-[10px] uppercase">Chamando...</div>`}
+                            <button onclick="document.getElementById('opt-${p.id}').classList.toggle('hidden')" class="bg-black/10 text-white font-black py-3 rounded-xl uppercase text-[10px]">💬 Mensagem</button>
+                        </div>
+                        <div id="opt-${p.id}" class="hidden mt-3 space-y-2 bg-black/20 p-3 rounded-2xl animate-fade-in">
+                            <button onclick="enviarMensagem(${p.id}, 'Ganhou R$ 1,00 de Cashback!')" class="w-full text-left text-[10px] font-bold py-1 border-b border-white/10">💰 Cashback R$ 1,00</button>
+                            <button onclick="enviarMensagem(${p.id}, 'Organize sua Bag, já sai!')" class="w-full text-left text-[10px] font-bold py-1 border-b border-white/10">🎒 Organize sua Bag</button>
+                            <button onclick="enviarMensagem(${p.id}, 'Seu pedido está sendo embalado.')" class="w-full text-left text-[10px] font-bold py-1">📦 Sendo embalado</button>
+                        </div>
+                    </div>`).join('') || '<p class="text-slate-400 font-bold text-xs uppercase">Fila limpa...</p>';
             });
         }
 
         function renderHistoricoRealtime() {
-            const dataFiltro = document.getElementById('filtroData').value;
+            const dataFiltro = document.getElementById('filtroData').value || new Date().toISOString().split('T')[0];
             db.ref('historico').on('value', (snap) => {
                 const hist = snap.val() ? Object.values(snap.val()) : [];
                 const filtrado = hist.filter(h => h.data === dataFiltro);
                 
-                // Cálculo de Média
                 if(filtrado.length > 0) {
-                    const soma = filtrado.reduce((acc, curr) => acc + (curr.minutosEspera || 0), 0);
-                    const media = (soma / filtrado.length).toFixed(1);
-                    document.getElementById('media-espera').innerHTML = media + '<span class="text-xl">min</span>';
+                    const somaSegundos = filtrado.reduce((acc, curr) => acc + (curr.segundosTotais || 0), 0);
+                    const mediaSegundos = Math.round(somaSegundos / filtrado.length);
+                    document.getElementById('media-espera').innerText = mediaSegundos < 60 ? mediaSegundos + "s" : Math.floor(mediaSegundos/60) + "m " + (mediaSegundos%60) + "s";
                 } else {
-                    document.getElementById('media-espera').innerHTML = '0<span class="text-xl">min</span>';
+                    document.getElementById('media-espera').innerText = "0s";
                 }
 
-                const apps = ['iFood', 'Rappi', '99 Food', 'Keeta', 'Lalamove', 'Uber Eats'];
-                document.getElementById('ranking-container').innerHTML = apps.map(nome => {
-                    const qtd = filtrado.filter(x => x.app === nome).length;
-                    return `<div class="p-3 rounded-2xl border-2 text-center ${cardClasses[nome]} shadow-sm"><p class="text-[8px] font-black uppercase opacity-80">${nome}</p><p class="text-2xl font-black">${qtd}</p></div>`;
-                }).join('');
-
                 document.getElementById('historico-lista').innerHTML = filtrado.reverse().slice(0, 10).map(h => `
-                    <div class="bg-white p-3 rounded-2xl border flex justify-between items-center text-xs fade-in shadow-sm">
-                        <div><p class="font-black">#${h.pedido} - ${h.nome}</p><p class="text-green-600 font-bold">Ficou: ${h.tempoEspera || '0m'}</p></div>
-                        <button onclick="deletarPedido('historico', ${h.id})" class="text-red-400 font-bold px-2 text-lg">×</button>
+                    <div class="bg-white p-3 rounded-2xl border flex justify-between items-center text-xs shadow-sm">
+                        <div><p class="font-black">#${h.pedido} - ${h.nome}</p><p class="text-green-600 font-bold">Espera: ${h.tempoEspera || '0s'}</p></div>
+                        <button onclick="deletarPedido('historico', ${h.id})" class="text-red-400 font-bold text-lg px-2">×</button>
                     </div>`).join('');
             });
         }
@@ -311,10 +269,10 @@
         function deletarPedido(p, id) { if(confirm("Remover?")) db.ref(p + '/' + id).remove(); }
         function gerarQRCode() {
             const url = window.location.origin + window.location.pathname + "?v=moto";
-            document.getElementById("qrcode").innerHTML = ""; document.getElementById("qrcode-print").innerHTML = "";
+            document.getElementById("qrcode").innerHTML = ""; 
             new QRCode(document.getElementById("qrcode"), { text: url, width: 90, height: 90 });
-            new QRCode(document.getElementById("qrcode-print"), { text: url, width: 450, height: 450 });
         }
+        document.getElementById('filtroData').valueAsDate = new Date();
     </script>
 </body>
 </html>
