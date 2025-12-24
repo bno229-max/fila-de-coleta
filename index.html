@@ -18,16 +18,29 @@
         .card-keeta { background-color: #004d40; color: white; border-color: #00332a; }
         .card-lalamove { background-color: #f60; color: white; border-color: #cc5200; }
         .card-ubereats { background-color: #000; color: white; border-color: #333; }
+        
+        /* Cores fixas para os botões de seleção */
+        .color-ifood { color: #ea1d2c; border-color: #ea1d2c; }
+        .active-ifood { background-color: #ea1d2c !important; color: white !important; }
+        .color-rappi { color: #ff441f; border-color: #ff441f; }
+        .active-rappi { background-color: #ff441f !important; color: white !important; }
+        .color-99food { color: #ffc107; border-color: #ffc107; }
+        .active-99food { background-color: #ffc107 !important; color: #4d3a00 !important; }
+        .color-keeta { color: #004d40; border-color: #004d40; }
+        .active-keeta { background-color: #004d40 !important; color: white !important; }
+        .color-lalamove { color: #f60; border-color: #f60; }
+        .active-lalamove { background-color: #f60 !important; color: white !important; }
+        .color-ubereats { color: #000; border-color: #000; }
+        .active-ubereats { background-color: #000 !important; color: white !important; }
+
         .btn-brand { border-width: 2px; transition: all 0.2s; cursor: pointer; }
-        .btn-brand.active { color: white !important; }
         @keyframes pulse-green {
             0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.7); }
             70% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(22, 163, 74, 0); }
             100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(22, 163, 74, 0); }
         }
         .animate-pulse-btn { animation: pulse-green 1.5s infinite; }
-        @media print { .no-print { display: none !important; } .print-only { display: block !important; }
-            body { background: white; } .print-container { height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; } }
+        @media print { .no-print { display: none !important; } .print-container { height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; } }
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen pb-10">
@@ -57,7 +70,7 @@
                     <button onclick="setApp(this, 'Uber Eats')" class="btn-brand color-ubereats p-4 rounded-2xl font-bold">Uber Eats</button>
                 </div>
             </div>
-            <button onclick="registrarEntrada()" class="w-full mt-10 bg-green-600 text-white font-black py-5 rounded-2xl text-lg shadow-xl uppercase">Entrar na Fila</button>
+            <button onclick="registrarEntrada()" class="w-full mt-10 bg-green-600 text-white font-black py-5 rounded-2xl text-lg shadow-xl uppercase transition active:scale-95">Entrar na Fila</button>
         </div>
 
         <div id="motoboy-status" class="hidden py-10">
@@ -77,10 +90,10 @@
 
     <main id="view-loja" class="hidden p-6 max-w-7xl mx-auto space-y-6 no-print">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div class="bg-white p-6 rounded-3xl shadow-sm border flex flex-col items-center justify-center">
-                <h3 class="font-black text-slate-800 uppercase text-[10px] mb-3 text-center">QR Code Motoboys</h3>
+            <div class="bg-white p-6 rounded-3xl shadow-sm border flex flex-col items-center justify-center text-center">
+                <h3 class="font-black text-slate-800 uppercase text-[10px] mb-3">QR Code Motoboys</h3>
                 <div id="qrcode"></div>
-                <button onclick="window.print()" class="mt-4 text-[10px] bg-slate-900 text-white font-bold py-2 px-4 rounded-full uppercase">Imprimir para A4</button>
+                <button onclick="window.print()" class="mt-4 text-[10px] bg-slate-900 text-white font-bold py-2 px-4 rounded-full uppercase">Imprimir A4</button>
             </div>
             <div class="md:col-span-3 bg-white p-6 rounded-3xl shadow-sm border">
                 <div class="flex justify-between items-center mb-4">
@@ -91,21 +104,15 @@
             </div>
         </div>
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div class="lg:col-span-2 space-y-4">
-                <h2 class="text-xl font-black text-slate-800 uppercase">Fila de Espera</h2>
-                <div id="lista-loja" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
-            </div>
-            <div class="space-y-4">
-                <h2 class="text-xl font-black text-slate-400 uppercase">Histórico</h2>
-                <div id="historico-lista" class="space-y-3"></div>
-            </div>
+            <div class="lg:col-span-2 space-y-4"><h2 class="text-xl font-black text-slate-800 uppercase">Fila de Espera</h2><div id="lista-loja" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div></div>
+            <div class="space-y-4"><h2 class="text-xl font-black text-slate-400 uppercase">Histórico</h2><div id="historico-lista" class="space-y-3"></div></div>
         </div>
     </main>
 
     <div class="hidden print:flex print-container">
         <h1 class="text-5xl font-black mb-4">🛵 FILA DE COLETA</h1>
-        <p class="text-2xl font-bold text-slate-600 mb-10 uppercase tracking-widest">Escaneie para entrar na fila</p>
-        <div id="qrcode-print" class="flex justify-center items-center p-10 border-8 border-slate-900 rounded-[3rem]"></div>
+        <div id="qrcode-print" class="p-10 border-8 border-slate-900 rounded-[3rem] mb-4"></div>
+        <p class="text-2xl font-bold uppercase tracking-widest">Escaneie para entrar na fila</p>
     </div>
 
     <audio id="snd-ready" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3" preload="auto"></audio>
@@ -125,17 +132,25 @@
         const snd = document.getElementById('snd-ready');
         
         const params = new URLSearchParams(window.location.search);
-        const modoMotoboy = params.get('v') === 'moto';
-        document.getElementById('filtroData').valueAsDate = new Date();
-
-        if(modoMotoboy) {
+        if(params.get('v') === 'moto') {
             document.getElementById('toggle-view').style.display = 'none';
-            changeView('motoboy');
+            document.getElementById('view-loja').style.display = 'none';
         }
+
+        document.getElementById('filtroData').valueAsDate = new Date();
 
         let appSelecionado = "";
         let meuIdAtual = null;
         const cardStyles = { 'iFood': 'card-ifood', 'Rappi': 'card-rappi', '99 Food': 'card-99food', 'Keeta': 'card-keeta', 'Lalamove': 'card-lalamove', 'Uber Eats': 'card-ubereats' };
+
+        function setApp(btn, nome) {
+            document.querySelectorAll('.btn-brand').forEach(b => {
+                b.className = b.className.replace(/active-\S+/g, '').trim();
+            });
+            appSelecionado = nome;
+            const slug = nome.toLowerCase().replace(' ', '');
+            btn.classList.add('active-' + slug);
+        }
 
         function changeView(view) {
             const vMoto = document.getElementById('view-motoboy');
@@ -152,23 +167,16 @@
             }
         }
 
-        function setApp(btn, nome) {
-            document.querySelectorAll('.btn-brand').forEach(b => b.classList.remove('active', 'bg-ifood', 'bg-rappi', 'bg-99food', 'bg-keeta', 'bg-lalamove', 'bg-ubereats'));
-            appSelecionado = nome;
-            btn.classList.add('active', 'bg-' + nome.toLowerCase().replace(' ', ''));
-        }
-
         function registrarEntrada() {
             const num = document.getElementById('inputPedido').value;
             const nome = document.getElementById('inputNome').value;
-            if(!num || !appSelecionado || !nome) return alert("Preencha todos os campos!");
-            
-            // Tenta dar um play/pause rápido para "acordar" o áudio no celular (exigência dos navegadores)
+            if(!num || !appSelecionado || !nome) return alert("Preencha tudo!");
+
+            // "ACORDA" O ÁUDIO - CRUCIAL PARA A PRIMEIRA VEZ
             snd.play().then(() => { snd.pause(); snd.currentTime = 0; }).catch(() => {});
 
             const id = Date.now();
-            const novo = { id, pedido: num, nome, app: appSelecionado, status: 'preparando', entrada: id, data: new Date().toISOString().split('T')[0] };
-            db.ref('fila/' + id).set(novo);
+            db.ref('fila/' + id).set({ id, pedido: num, nome, app: appSelecionado, status: 'preparando', entrada: id, data: new Date().toISOString().split('T')[0] });
             meuIdAtual = id;
             iniciarTelaEspera();
         }
@@ -182,23 +190,20 @@
                 document.getElementById('ticket-pedido').innerText = "#" + p.pedido;
                 document.getElementById('ticket-nome').innerText = p.nome;
                 document.getElementById('ticket-app').innerText = p.app;
-                
                 if(p.status === 'liberado') {
                     document.getElementById('badge-status-moto').innerText = "✅ COZINHA LIBEROU!";
                     document.getElementById('btn-finalizar').classList.remove('hidden');
-                    
-                    // ATIVA O LOOP DO SOM
                     snd.loop = true;
-                    snd.play().catch(e => console.log("Erro ao tocar som:", e));
+                    snd.play().catch(e => console.log("Erro som:", e));
                 }
             });
             setInterval(() => {
                 if(meuIdAtual) {
-                    db.ref('fila/' + meuIdAtual).once('value', (snap) => {
-                        const p = snap.val();
-                        if(p) {
-                            const diff = Math.floor((Date.now() - p.entrada) / 1000);
-                            document.getElementById('timer-moto').innerText = `${Math.floor(diff/60).toString().padStart(2,'0')}:${(diff%60).toString().padStart(2,'0')}`;
+                    db.ref('fila/' + meuIdAtual).once('value', (s) => {
+                        const v = s.val();
+                        if(v) {
+                            const d = Math.floor((Date.now() - v.entrada) / 1000);
+                            document.getElementById('timer-moto').innerText = `${Math.floor(d/60).toString().padStart(2,'0')}:${(d%60).toString().padStart(2,'0')}`;
                         }
                     });
                 }
@@ -206,11 +211,7 @@
         }
 
         function confirmarColetaFinal() {
-            // PARA O SOM IMEDIATAMENTE
-            snd.pause();
-            snd.currentTime = 0;
-            snd.loop = false;
-
+            snd.pause(); snd.currentTime = 0; snd.loop = false;
             db.ref('fila/' + meuIdAtual).once('value', (snap) => {
                 const p = snap.val();
                 if(p) {
@@ -232,8 +233,8 @@
                         <span class="text-[10px] font-black uppercase opacity-80">${p.app}</span>
                         <h3 class="text-4xl font-black mt-1">#${p.pedido}</h3>
                         <p class="text-md font-bold mb-5 uppercase italic opacity-90">${p.nome}</p>
-                        ${p.status === 'preparando' ? `<button onclick="liberarPedidoLoja(${p.id})" class="w-full bg-white text-slate-900 font-black py-3 rounded-xl uppercase text-xs shadow-md">Liberar Pedido</button>` : `<div class="bg-black/20 text-white py-3 rounded-xl font-bold text-center text-xs uppercase italic">Chamando Motoboy...</div>`}
-                    </div>`).join('') || '<p class="text-slate-400 font-bold text-xs uppercase italic">Fila limpa...</p>';
+                        ${p.status === 'preparando' ? `<button onclick="liberarPedidoLoja(${p.id})" class="w-full bg-white text-slate-900 font-black py-3 rounded-xl uppercase text-xs shadow-md">Liberar</button>` : `<div class="bg-black/20 text-white py-3 rounded-xl font-bold text-center text-xs uppercase italic">Chamando...</div>`}
+                    </div>`).join('') || '<p class="text-slate-400 font-bold text-xs uppercase italic">Vazio...</p>';
             });
         }
 
@@ -241,35 +242,28 @@
             const dataFiltro = document.getElementById('filtroData').value;
             db.ref('historico').on('value', (snap) => {
                 const hist = snap.val() ? Object.values(snap.val()) : [];
-                const histFiltrado = hist.filter(h => h.data === dataFiltro);
+                const filtrado = hist.filter(h => h.data === dataFiltro);
                 const apps = ['iFood', 'Rappi', '99 Food', 'Keeta', 'Lalamove', 'Uber Eats'];
-
                 document.getElementById('ranking-container').innerHTML = apps.map(nome => {
-                    const qtd = histFiltrado.filter(x => x.app === nome).length;
-                    return `<div class="p-3 rounded-2xl border-2 text-center ${cardStyles[nome]} shadow-sm">
-                        <p class="text-[8px] font-black uppercase opacity-80">${nome}</p>
-                        <p class="text-2xl font-black">${qtd}</p>
-                    </div>`;
+                    const qtd = filtrado.filter(x => x.app === nome).length;
+                    return `<div class="p-3 rounded-2xl border-2 text-center ${cardStyles[nome]} shadow-sm"><p class="text-[8px] font-black uppercase opacity-80">${nome}</p><p class="text-2xl font-black">${qtd}</p></div>`;
                 }).join('');
-
-                document.getElementById('historico-lista').innerHTML = histFiltrado.reverse().map(h => `
+                document.getElementById('historico-lista').innerHTML = filtrado.reverse().map(h => `
                     <div class="bg-white p-3 rounded-2xl border flex justify-between items-center text-xs shadow-sm">
                         <div><p class="font-black">#${h.pedido} - ${h.nome}</p><p class="text-green-600 font-bold">Espera: ${h.tempoEspera || '0m'}</p></div>
-                        <button onclick="deletarPedido('historico', ${h.id})" class="text-red-400 hover:text-red-600 font-bold px-2">Remover</button>
-                    </div>`).join('') || '<p class="text-slate-400 text-xs text-center italic">Nenhuma coleta hoje.</p>';
+                        <button onclick="deletarPedido('historico', ${h.id})" class="text-red-400 font-bold px-2">Remover</button>
+                    </div>`).join('');
             });
         }
 
         function liberarPedidoLoja(id) { db.ref('fila/' + id).update({ status: 'liberado' }); }
-        function deletarPedido(pasta, id) { if(confirm("Remover este registro?")) db.ref(pasta + '/' + id).remove(); }
+        function deletarPedido(p, id) { if(confirm("Remover?")) db.ref(p + '/' + id).remove(); }
         
         function gerarQRCode() {
-            const urlBase = window.location.origin + window.location.pathname;
-            const urlMoto = urlBase + "?v=moto";
-            document.getElementById("qrcode").innerHTML = "";
-            document.getElementById("qrcode-print").innerHTML = "";
-            new QRCode(document.getElementById("qrcode"), { text: urlMoto, width: 120, height: 120 });
-            new QRCode(document.getElementById("qrcode-print"), { text: urlMoto, width: 400, height: 400 });
+            const url = window.location.origin + window.location.pathname + "?v=moto";
+            document.getElementById("qrcode").innerHTML = ""; document.getElementById("qrcode-print").innerHTML = "";
+            new QRCode(document.getElementById("qrcode"), { text: url, width: 120, height: 120 });
+            new QRCode(document.getElementById("qrcode-print"), { text: url, width: 400, height: 400 });
         }
     </script>
 </body>
