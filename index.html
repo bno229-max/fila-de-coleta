@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fila de Coleta 🛵</title>
+    <title>Fila de Coleta - Dashboard</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -11,44 +11,44 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
 
     <style>
-        body { font-family: 'Inter', sans-serif; }
-        .card-ifood { background-color: #ea1d2c; color: white; border-color: #b3121d; }
-        .card-rappi { background-color: #ff441f; color: white; border-color: #d63314; }
-        .card-99food { background-color: #ffc107; color: #4d3a00; border-color: #e6ac00; }
-        .card-keeta { background-color: #004d40; color: white; border-color: #00332a; }
-        .card-lalamove { background-color: #f60; color: white; border-color: #cc5200; }
-        .card-ubereats { background-color: #000; color: white; border-color: #333; }
+        body { font-family: 'Inter', sans-serif; transition: background-color 0.3s ease; }
+        .card-ifood { background-color: #ea1d2c; color: white; }
+        .card-rappi { background-color: #ff441f; color: white; }
+        .card-99food { background-color: #ffc107; color: #4d3a00; }
+        .card-keeta { background-color: #004d40; color: white; }
+        .card-lalamove { background-color: #f60; color: white; }
+        .card-ubereats { background-color: #000; color: white; }
         
-        /* Cores fixas para os botões de seleção */
-        .color-ifood { color: #ea1d2c; border-color: #ea1d2c; }
         .active-ifood { background-color: #ea1d2c !important; color: white !important; }
-        .color-rappi { color: #ff441f; border-color: #ff441f; }
         .active-rappi { background-color: #ff441f !important; color: white !important; }
-        .color-99food { color: #ffc107; border-color: #ffc107; }
         .active-99food { background-color: #ffc107 !important; color: #4d3a00 !important; }
-        .color-keeta { color: #004d40; border-color: #004d40; }
         .active-keeta { background-color: #004d40 !important; color: white !important; }
-        .color-lalamove { color: #f60; border-color: #f60; }
         .active-lalamove { background-color: #f60 !important; color: white !important; }
-        .color-ubereats { color: #000; border-color: #000; }
         .active-ubereats { background-color: #000 !important; color: white !important; }
 
-        .btn-brand { border-width: 2px; transition: all 0.2s; cursor: pointer; }
+        .btn-brand { border-width: 2px; transition: all 0.2s; cursor: pointer; border-color: #e2e8f0; }
+        
+        /* Animações de entrada/saída */
+        .fade-in { animation: fadeIn 0.5s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
         @keyframes pulse-green {
             0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.7); }
-            70% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(22, 163, 74, 0); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(22, 163, 74, 0); }
             100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(22, 163, 74, 0); }
         }
         .animate-pulse-btn { animation: pulse-green 1.5s infinite; }
-        @media print { .no-print { display: none !important; } .print-container { height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; } }
+        @media print { .no-print { display: none !important; } }
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen pb-10">
 
     <nav id="navbar" class="bg-white sticky top-0 z-50 border-b border-slate-200 px-4 py-3 flex justify-between items-center shadow-sm no-print">
-        <div class="flex items-center gap-2">
-            <span class="text-2xl">🛵</span>
-            <span class="font-extrabold text-xl tracking-tighter text-slate-800 uppercase">Fila de<span class="text-green-600">Coleta</span></span>
+        <div class="flex items-center gap-3">
+            <span id="status-conexao" class="flex items-center gap-1.5 bg-green-100 text-green-700 text-[9px] font-bold px-2 py-1 rounded-full uppercase">
+                <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span> ONLINE
+            </span>
+            <span id="nav-title" class="font-black text-lg tracking-tight text-slate-800 uppercase">Fila de Coleta</span>
         </div>
         <div id="toggle-view" class="flex gap-1 bg-slate-100 p-1 rounded-full text-[10px] font-bold">
             <button onclick="changeView('motoboy')" id="nav-moto" class="px-4 py-2 rounded-full transition bg-green-600 text-white uppercase text-xs">Motoboy</button>
@@ -56,7 +56,7 @@
         </div>
     </nav>
 
-    <main id="view-motoboy" class="max-w-md mx-auto p-4 block no-print">
+    <main id="view-motoboy" class="max-w-md mx-auto p-4 block no-print fade-in">
         <div id="motoboy-form" class="bg-white p-8 rounded-3xl shadow-xl border border-slate-100 mt-4">
             <div class="space-y-5">
                 <input type="number" id="inputPedido" inputmode="numeric" placeholder="Nº do Pedido" class="w-full bg-slate-50 border-2 border-slate-100 p-4 rounded-2xl text-3xl font-black text-slate-700 outline-none focus:border-green-500">
@@ -88,31 +88,49 @@
         </div>
     </main>
 
-    <main id="view-loja" class="hidden p-6 max-w-7xl mx-auto space-y-6 no-print">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div class="bg-white p-6 rounded-3xl shadow-sm border flex flex-col items-center justify-center text-center">
-                <h3 class="font-black text-slate-800 uppercase text-[10px] mb-3">QR Code Motoboys</h3>
-                <div id="qrcode"></div>
-                <button onclick="window.print()" class="mt-4 text-[10px] bg-slate-900 text-white font-bold py-2 px-4 rounded-full uppercase">Imprimir A4</button>
+    <main id="view-loja" class="hidden p-6 max-w-7xl mx-auto space-y-6 no-print fade-in">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-white p-6 rounded-3xl shadow-sm border text-center">
+                <p class="text-[10px] font-black text-slate-400 uppercase">Média de Espera (Hoje)</p>
+                <h2 id="media-espera" class="text-4xl font-black text-green-600">0<span class="text-sm">min</span></h2>
             </div>
-            <div class="md:col-span-3 bg-white p-6 rounded-3xl shadow-sm border">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="font-black text-slate-800 uppercase text-xs">📊 Volume do Dia</h3>
-                    <input type="date" id="filtroData" onchange="renderHistoricoRealtime()" class="bg-slate-50 text-xs font-bold rounded-lg p-2 outline-none text-green-600 border">
+            <div class="bg-white p-6 rounded-3xl shadow-sm border text-center">
+                <p class="text-[10px] font-black text-slate-400 uppercase">Pico de Movimento</p>
+                <h2 id="pico-horario" class="text-3xl font-black text-slate-800">--:--</h2>
+            </div>
+            <div class="bg-white p-6 rounded-3xl shadow-sm border flex items-center justify-between">
+                <div>
+                    <p class="text-[10px] font-black text-slate-400 uppercase">QR Code Fila</p>
+                    <button onclick="window.print()" class="mt-2 text-[10px] bg-slate-900 text-white font-bold py-2 px-4 rounded-full uppercase">Imprimir A4</button>
                 </div>
-                <div id="ranking-container" class="grid grid-cols-3 md:grid-cols-6 gap-3"></div>
+                <div id="qrcode" class="p-1 bg-white border rounded-lg"></div>
             </div>
         </div>
+
+        <div class="bg-white p-6 rounded-3xl shadow-sm border">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-black text-slate-800 uppercase text-xs tracking-widest">Resumo de Volume</h3>
+                <input type="date" id="filtroData" onchange="renderHistoricoRealtime()" class="bg-slate-50 text-xs font-bold rounded-lg p-2 outline-none text-green-600 border">
+            </div>
+            <div id="ranking-container" class="grid grid-cols-3 md:grid-cols-6 gap-3"></div>
+        </div>
+
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div class="lg:col-span-2 space-y-4"><h2 class="text-xl font-black text-slate-800 uppercase">Fila de Espera</h2><div id="lista-loja" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div></div>
-            <div class="space-y-4"><h2 class="text-xl font-black text-slate-400 uppercase">Histórico</h2><div id="historico-lista" class="space-y-3"></div></div>
+            <div class="lg:col-span-2 space-y-4">
+                <h2 class="text-xl font-black text-slate-800 uppercase tracking-tighter">Pedidos em Preparo</h2>
+                <div id="lista-loja" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+            </div>
+            <div class="space-y-4">
+                <h2 class="text-xl font-black text-slate-400 uppercase tracking-tighter">Últimas Coletas</h2>
+                <div id="historico-lista" class="space-y-3"></div>
+            </div>
         </div>
     </main>
 
-    <div class="hidden print:flex print-container">
-        <h1 class="text-5xl font-black mb-4">🛵 FILA DE COLETA</h1>
-        <div id="qrcode-print" class="p-10 border-8 border-slate-900 rounded-[3rem] mb-4"></div>
-        <p class="text-2xl font-bold uppercase tracking-widest">Escaneie para entrar na fila</p>
+    <div class="hidden print:flex flex-col items-center justify-center min-h-screen text-center p-10">
+        <h1 class="text-6xl font-black mb-2 uppercase">Fila de Coleta</h1>
+        <p class="text-2xl text-slate-500 font-bold mb-10">ESCANEIE E AGUARDE O CHAMADO</p>
+        <div id="qrcode-print" class="border-[12px] border-slate-900 p-8 rounded-[4rem]"></div>
     </div>
 
     <audio id="snd-ready" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3" preload="auto"></audio>
@@ -131,22 +149,30 @@
         const db = firebase.database();
         const snd = document.getElementById('snd-ready');
         
+        // Monitor de Conexão
+        db.ref(".info/connected").on("value", (snap) => {
+            const statusEl = document.getElementById('status-conexao');
+            if (snap.val() === true) {
+                statusEl.innerHTML = '<span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span> ONLINE';
+                statusEl.className = "flex items-center gap-1.5 bg-green-100 text-green-700 text-[9px] font-bold px-2 py-1 rounded-full uppercase";
+            } else {
+                statusEl.innerHTML = '<span class="w-2 h-2 bg-red-500 rounded-full"></span> OFFLINE';
+                statusEl.className = "flex items-center gap-1.5 bg-red-100 text-red-700 text-[9px] font-bold px-2 py-1 rounded-full uppercase";
+            }
+        });
+
         const params = new URLSearchParams(window.location.search);
         if(params.get('v') === 'moto') {
             document.getElementById('toggle-view').style.display = 'none';
-            document.getElementById('view-loja').style.display = 'none';
         }
 
         document.getElementById('filtroData').valueAsDate = new Date();
-
         let appSelecionado = "";
         let meuIdAtual = null;
         const cardStyles = { 'iFood': 'card-ifood', 'Rappi': 'card-rappi', '99 Food': 'card-99food', 'Keeta': 'card-keeta', 'Lalamove': 'card-lalamove', 'Uber Eats': 'card-ubereats' };
 
         function setApp(btn, nome) {
-            document.querySelectorAll('.btn-brand').forEach(b => {
-                b.className = b.className.replace(/active-\S+/g, '').trim();
-            });
+            document.querySelectorAll('.btn-brand').forEach(b => b.className = 'btn-brand p-4 rounded-2xl font-bold');
             appSelecionado = nome;
             const slug = nome.toLowerCase().replace(' ', '');
             btn.classList.add('active-' + slug);
@@ -155,13 +181,16 @@
         function changeView(view) {
             const vMoto = document.getElementById('view-motoboy');
             const vLoja = document.getElementById('view-loja');
+            const title = document.getElementById('nav-title');
             if(view === 'loja') {
                 vMoto.style.display = 'none'; vLoja.style.display = 'block';
+                title.innerText = "Fila de Coleta - Dashboard";
                 document.getElementById('nav-loja').classList.add('bg-slate-900', 'text-white');
                 document.getElementById('nav-moto').classList.remove('bg-green-600', 'text-white');
                 gerarQRCode(); renderFilaRealtime(); renderHistoricoRealtime();
             } else {
                 vMoto.style.display = 'block'; vLoja.style.display = 'none';
+                title.innerText = "Fila de Coleta";
                 document.getElementById('nav-moto').classList.add('bg-green-600', 'text-white');
                 document.getElementById('nav-loja').classList.remove('bg-slate-900', 'text-white');
             }
@@ -171,12 +200,15 @@
             const num = document.getElementById('inputPedido').value;
             const nome = document.getElementById('inputNome').value;
             if(!num || !appSelecionado || !nome) return alert("Preencha tudo!");
-
-            // "ACORDA" O ÁUDIO - CRUCIAL PARA A PRIMEIRA VEZ
             snd.play().then(() => { snd.pause(); snd.currentTime = 0; }).catch(() => {});
-
             const id = Date.now();
-            db.ref('fila/' + id).set({ id, pedido: num, nome, app: appSelecionado, status: 'preparando', entrada: id, data: new Date().toISOString().split('T')[0] });
+            const agora = new Date();
+            db.ref('fila/' + id).set({ 
+                id, pedido: num, nome, app: appSelecionado, 
+                status: 'preparando', entrada: id, 
+                hora: agora.getHours(),
+                data: agora.toISOString().split('T')[0] 
+            });
             meuIdAtual = id;
             iniciarTelaEspera();
         }
@@ -193,8 +225,7 @@
                 if(p.status === 'liberado') {
                     document.getElementById('badge-status-moto').innerText = "✅ COZINHA LIBEROU!";
                     document.getElementById('btn-finalizar').classList.remove('hidden');
-                    snd.loop = true;
-                    snd.play().catch(e => console.log("Erro som:", e));
+                    snd.loop = true; snd.play();
                 }
             });
             setInterval(() => {
@@ -211,12 +242,13 @@
         }
 
         function confirmarColetaFinal() {
-            snd.pause(); snd.currentTime = 0; snd.loop = false;
+            snd.pause(); snd.loop = false;
             db.ref('fila/' + meuIdAtual).once('value', (snap) => {
                 const p = snap.val();
                 if(p) {
                     const diffMs = Date.now() - p.entrada;
-                    p.tempoEspera = Math.floor(diffMs/60000) + "m " + Math.floor((diffMs%60000)/1000) + "s";
+                    p.minutosEspera = Math.floor(diffMs/60000);
+                    p.tempoEspera = p.minutosEspera + "m " + Math.floor((diffMs%60000)/1000) + "s";
                     db.ref('historico/' + meuIdAtual).set(p);
                     db.ref('fila/' + meuIdAtual).remove();
                 }
@@ -228,13 +260,12 @@
             db.ref('fila').on('value', (snap) => {
                 const fila = snap.val() ? Object.values(snap.val()) : [];
                 document.getElementById('lista-loja').innerHTML = fila.map(p => `
-                    <div class="p-6 rounded-3xl shadow-lg border-2 relative ${cardStyles[p.app]}">
-                        <button onclick="deletarPedido('fila', ${p.id})" class="absolute top-4 right-4 text-white opacity-50 hover:opacity-100 font-bold text-2xl">×</button>
-                        <span class="text-[10px] font-black uppercase opacity-80">${p.app}</span>
+                    <div class="p-6 rounded-3xl shadow-lg border-2 relative fade-in ${cardStyles[p.app]}">
+                        <span class="text-[10px] font-black uppercase opacity-70">${p.app}</span>
                         <h3 class="text-4xl font-black mt-1">#${p.pedido}</h3>
-                        <p class="text-md font-bold mb-5 uppercase italic opacity-90">${p.nome}</p>
-                        ${p.status === 'preparando' ? `<button onclick="liberarPedidoLoja(${p.id})" class="w-full bg-white text-slate-900 font-black py-3 rounded-xl uppercase text-xs shadow-md">Liberar</button>` : `<div class="bg-black/20 text-white py-3 rounded-xl font-bold text-center text-xs uppercase italic">Chamando...</div>`}
-                    </div>`).join('') || '<p class="text-slate-400 font-bold text-xs uppercase italic">Vazio...</p>';
+                        <p class="text-md font-bold mb-5 uppercase opacity-90">${p.nome}</p>
+                        ${p.status === 'preparando' ? `<button onclick="liberarPedidoLoja(${p.id})" class="w-full bg-white text-slate-900 font-black py-3 rounded-xl uppercase text-xs">Liberar</button>` : `<div class="bg-black/20 text-white py-3 rounded-xl font-bold text-center text-xs uppercase italic">Chamando...</div>`}
+                    </div>`).join('') || '<p class="text-slate-400 font-bold text-xs uppercase italic">Nenhum motoboy na fila.</p>';
             });
         }
 
@@ -243,27 +274,38 @@
             db.ref('historico').on('value', (snap) => {
                 const hist = snap.val() ? Object.values(snap.val()) : [];
                 const filtrado = hist.filter(h => h.data === dataFiltro);
+                
+                // Cálculo de Média e Pico
+                if(filtrado.length > 0) {
+                    const soma = filtrado.reduce((acc, curr) => acc + (curr.minutosEspera || 0), 0);
+                    document.getElementById('media-espera').innerHTML = Math.round(soma/filtrado.length) + '<span class="text-sm">min</span>';
+                    
+                    const horas = filtrado.map(h => h.hora);
+                    const pico = horas.sort((a,b) => horas.filter(v => v===a).length - horas.filter(v => v===b).length).pop();
+                    document.getElementById('pico-horario').innerText = pico + ":00h";
+                }
+
                 const apps = ['iFood', 'Rappi', '99 Food', 'Keeta', 'Lalamove', 'Uber Eats'];
                 document.getElementById('ranking-container').innerHTML = apps.map(nome => {
                     const qtd = filtrado.filter(x => x.app === nome).length;
                     return `<div class="p-3 rounded-2xl border-2 text-center ${cardStyles[nome]} shadow-sm"><p class="text-[8px] font-black uppercase opacity-80">${nome}</p><p class="text-2xl font-black">${qtd}</p></div>`;
                 }).join('');
-                document.getElementById('historico-lista').innerHTML = filtrado.reverse().map(h => `
-                    <div class="bg-white p-3 rounded-2xl border flex justify-between items-center text-xs shadow-sm">
-                        <div><p class="font-black">#${h.pedido} - ${h.nome}</p><p class="text-green-600 font-bold">Espera: ${h.tempoEspera || '0m'}</p></div>
-                        <button onclick="deletarPedido('historico', ${h.id})" class="text-red-400 font-bold px-2">Remover</button>
+
+                document.getElementById('historico-lista').innerHTML = filtrado.reverse().slice(0, 5).map(h => `
+                    <div class="bg-white p-3 rounded-2xl border flex justify-between items-center text-xs fade-in shadow-sm">
+                        <div><p class="font-black">#${h.pedido} - ${h.nome}</p><p class="text-green-600 font-bold">Ficou: ${h.tempoEspera || '0m'}</p></div>
+                        <button onclick="deletarPedido('historico', ${h.id})" class="text-red-400 font-bold px-2">×</button>
                     </div>`).join('');
             });
         }
 
         function liberarPedidoLoja(id) { db.ref('fila/' + id).update({ status: 'liberado' }); }
         function deletarPedido(p, id) { if(confirm("Remover?")) db.ref(p + '/' + id).remove(); }
-        
         function gerarQRCode() {
             const url = window.location.origin + window.location.pathname + "?v=moto";
             document.getElementById("qrcode").innerHTML = ""; document.getElementById("qrcode-print").innerHTML = "";
-            new QRCode(document.getElementById("qrcode"), { text: url, width: 120, height: 120 });
-            new QRCode(document.getElementById("qrcode-print"), { text: url, width: 400, height: 400 });
+            new QRCode(document.getElementById("qrcode"), { text: url, width: 80, height: 80 });
+            new QRCode(document.getElementById("qrcode-print"), { text: url, width: 450, height: 450 });
         }
     </script>
 </body>
