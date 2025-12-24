@@ -11,24 +11,19 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
 
     <style>
-        body { font-family: 'Inter', sans-serif; transition: background-color 0.3s ease; }
-        .card-ifood { background-color: #ea1d2c; color: white; }
-        .card-rappi { background-color: #ff441f; color: white; }
-        .card-99food { background-color: #ffc107; color: #4d3a00; }
-        .card-keeta { background-color: #004d40; color: white; }
-        .card-lalamove { background-color: #f60; color: white; }
-        .card-ubereats { background-color: #000; color: white; }
+        body { font-family: 'Inter', sans-serif; }
         
-        .active-ifood { background-color: #ea1d2c !important; color: white !important; }
-        .active-rappi { background-color: #ff441f !important; color: white !important; }
-        .active-99food { background-color: #ffc107 !important; color: #4d3a00 !important; }
-        .active-keeta { background-color: #004d40 !important; color: white !important; }
-        .active-lalamove { background-color: #f60 !important; color: white !important; }
-        .active-ubereats { background-color: #000 !important; color: white !important; }
-
-        .btn-brand { border-width: 2px; transition: all 0.2s; cursor: pointer; border-color: #e2e8f0; }
+        /* Cores dos Cards e Botões */
+        .card-ifood, .btn-ifood { background-color: #ea1d2c; color: white; }
+        .card-rappi, .btn-rappi { background-color: #ff441f; color: white; }
+        .card-99food, .btn-99food { background-color: #ffc107; color: #4d3a00; }
+        .card-keeta, .btn-keeta { background-color: #004d40; color: white; }
+        .card-lalamove, .btn-lalamove { background-color: #f60; color: white; }
+        .card-ubereats, .btn-ubereats { background-color: #000; color: white; }
         
-        /* Animações de entrada/saída */
+        /* Borda padrão para botões não selecionados */
+        .btn-brand { border: 2px solid #e2e8f0; transition: all 0.2s; cursor: pointer; }
+        
         .fade-in { animation: fadeIn 0.5s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -48,7 +43,7 @@
             <span id="status-conexao" class="flex items-center gap-1.5 bg-green-100 text-green-700 text-[9px] font-bold px-2 py-1 rounded-full uppercase">
                 <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span> ONLINE
             </span>
-            <span id="nav-title" class="font-black text-lg tracking-tight text-slate-800 uppercase">Fila de Coleta</span>
+            <span id="nav-title" class="font-black text-lg tracking-tight text-slate-800 uppercase text-xs sm:text-lg">Fila de Coleta</span>
         </div>
         <div id="toggle-view" class="flex gap-1 bg-slate-100 p-1 rounded-full text-[10px] font-bold">
             <button onclick="changeView('motoboy')" id="nav-moto" class="px-4 py-2 rounded-full transition bg-green-600 text-white uppercase text-xs">Motoboy</button>
@@ -62,12 +57,12 @@
                 <input type="number" id="inputPedido" inputmode="numeric" placeholder="Nº do Pedido" class="w-full bg-slate-50 border-2 border-slate-100 p-4 rounded-2xl text-3xl font-black text-slate-700 outline-none focus:border-green-500">
                 <input type="text" id="inputNome" placeholder="Seu Nome" class="w-full bg-slate-50 border-2 border-slate-100 p-4 rounded-2xl text-xl font-bold text-slate-600 outline-none focus:border-green-500">
                 <div class="grid grid-cols-2 gap-3">
-                    <button onclick="setApp(this, 'iFood')" class="btn-brand color-ifood p-4 rounded-2xl font-bold">iFood</button>
-                    <button onclick="setApp(this, 'Rappi')" class="btn-brand color-rappi p-4 rounded-2xl font-bold">Rappi</button>
-                    <button onclick="setApp(this, '99 Food')" class="btn-brand color-99food p-4 rounded-2xl font-bold">99 Food</button>
-                    <button onclick="setApp(this, 'Keeta')" class="btn-brand color-keeta p-4 rounded-2xl font-bold">Keeta</button>
-                    <button onclick="setApp(this, 'Lalamove')" class="btn-brand color-lalamove p-4 rounded-2xl font-bold">Lalamove</button>
-                    <button onclick="setApp(this, 'Uber Eats')" class="btn-brand color-ubereats p-4 rounded-2xl font-bold">Uber Eats</button>
+                    <button onclick="setApp(this, 'iFood')" id="btn-iFood" class="btn-brand p-4 rounded-2xl font-bold text-red-600">iFood</button>
+                    <button onclick="setApp(this, 'Rappi')" id="btn-Rappi" class="btn-brand p-4 rounded-2xl font-bold text-orange-600">Rappi</button>
+                    <button onclick="setApp(this, '99 Food')" id="btn-99Food" class="btn-brand p-4 rounded-2xl font-bold text-amber-500">99 Food</button>
+                    <button onclick="setApp(this, 'Keeta')" id="btn-Keeta" class="btn-brand p-4 rounded-2xl font-bold text-teal-800">Keeta</button>
+                    <button onclick="setApp(this, 'Lalamove')" id="btn-Lalamove" class="btn-brand p-4 rounded-2xl font-bold text-orange-500">Lalamove</button>
+                    <button onclick="setApp(this, 'Uber Eats')" id="btn-UberEats" class="btn-brand p-4 rounded-2xl font-bold text-black">Uber Eats</button>
                 </div>
             </div>
             <button onclick="registrarEntrada()" class="w-full mt-10 bg-green-600 text-white font-black py-5 rounded-2xl text-lg shadow-xl uppercase transition active:scale-95">Entrar na Fila</button>
@@ -89,26 +84,22 @@
     </main>
 
     <main id="view-loja" class="hidden p-6 max-w-7xl mx-auto space-y-6 no-print fade-in">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="bg-white p-6 rounded-3xl shadow-sm border text-center">
-                <p class="text-[10px] font-black text-slate-400 uppercase">Média de Espera (Hoje)</p>
-                <h2 id="media-espera" class="text-4xl font-black text-green-600">0<span class="text-sm">min</span></h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-white p-8 rounded-3xl shadow-sm border text-center flex flex-col justify-center">
+                <p class="text-[10px] font-black text-slate-400 uppercase mb-2 tracking-widest">Média de Espera Hoje</p>
+                <h2 id="media-espera" class="text-6xl font-black text-green-600">0<span class="text-xl">min</span></h2>
             </div>
-            <div class="bg-white p-6 rounded-3xl shadow-sm border text-center">
-                <p class="text-[10px] font-black text-slate-400 uppercase">Pico de Movimento</p>
-                <h2 id="pico-horario" class="text-3xl font-black text-slate-800">--:--</h2>
-            </div>
-            <div class="bg-white p-6 rounded-3xl shadow-sm border flex items-center justify-between">
-                <div>
-                    <p class="text-[10px] font-black text-slate-400 uppercase">QR Code Fila</p>
-                    <button onclick="window.print()" class="mt-2 text-[10px] bg-slate-900 text-white font-bold py-2 px-4 rounded-full uppercase">Imprimir A4</button>
+            <div class="bg-white p-6 rounded-3xl shadow-sm border flex items-center justify-around">
+                <div class="text-center">
+                    <p class="text-[10px] font-black text-slate-400 uppercase mb-3">QR Code para Fila</p>
+                    <button onclick="window.print()" class="text-[10px] bg-slate-900 text-white font-bold py-3 px-6 rounded-full uppercase">Imprimir A4</button>
                 </div>
-                <div id="qrcode" class="p-1 bg-white border rounded-lg"></div>
+                <div id="qrcode" class="p-2 bg-white border-2 border-slate-100 rounded-2xl"></div>
             </div>
         </div>
 
         <div class="bg-white p-6 rounded-3xl shadow-sm border">
-            <div class="flex justify-between items-center mb-4">
+            <div class="flex justify-between items-center mb-6">
                 <h3 class="font-black text-slate-800 uppercase text-xs tracking-widest">Resumo de Volume</h3>
                 <input type="date" id="filtroData" onchange="renderHistoricoRealtime()" class="bg-slate-50 text-xs font-bold rounded-lg p-2 outline-none text-green-600 border">
             </div>
@@ -129,8 +120,8 @@
 
     <div class="hidden print:flex flex-col items-center justify-center min-h-screen text-center p-10">
         <h1 class="text-6xl font-black mb-2 uppercase">Fila de Coleta</h1>
-        <p class="text-2xl text-slate-500 font-bold mb-10">ESCANEIE E AGUARDE O CHAMADO</p>
-        <div id="qrcode-print" class="border-[12px] border-slate-900 p-8 rounded-[4rem]"></div>
+        <p class="text-2xl text-slate-500 font-bold mb-10 tracking-[0.2em]">ESCANEIE PARA ENTRAR NA FILA</p>
+        <div id="qrcode-print" class="border-[15px] border-slate-900 p-10 rounded-[4rem]"></div>
     </div>
 
     <audio id="snd-ready" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3" preload="auto"></audio>
@@ -149,7 +140,6 @@
         const db = firebase.database();
         const snd = document.getElementById('snd-ready');
         
-        // Monitor de Conexão
         db.ref(".info/connected").on("value", (snap) => {
             const statusEl = document.getElementById('status-conexao');
             if (snap.val() === true) {
@@ -169,13 +159,33 @@
         document.getElementById('filtroData').valueAsDate = new Date();
         let appSelecionado = "";
         let meuIdAtual = null;
-        const cardStyles = { 'iFood': 'card-ifood', 'Rappi': 'card-rappi', '99 Food': 'card-99food', 'Keeta': 'card-keeta', 'Lalamove': 'card-lalamove', 'Uber Eats': 'card-ubereats' };
+
+        const brandClasses = {
+            'iFood': 'btn-ifood', 'Rappi': 'btn-rappi', '99 Food': 'btn-99food',
+            'Keeta': 'btn-keeta', 'Lalamove': 'btn-lalamove', 'Uber Eats': 'btn-ubereats'
+        };
+
+        const cardClasses = {
+            'iFood': 'card-ifood', 'Rappi': 'card-rappi', '99 Food': 'card-99food',
+            'Keeta': 'card-keeta', 'Lalamove': 'card-lalamove', 'Uber Eats': 'card-ubereats'
+        };
 
         function setApp(btn, nome) {
-            document.querySelectorAll('.btn-brand').forEach(b => b.className = 'btn-brand p-4 rounded-2xl font-bold');
+            // Resetar todos os botões para o estilo padrão (letras coloridas, fundo branco)
+            document.querySelectorAll('.btn-brand').forEach(b => {
+                b.className = 'btn-brand p-4 rounded-2xl font-bold';
+                if(b.id === 'btn-iFood') b.classList.add('text-red-600');
+                if(b.id === 'btn-Rappi') b.classList.add('text-orange-600');
+                if(b.id === 'btn-99Food') b.classList.add('text-amber-500');
+                if(b.id === 'btn-Keeta') b.classList.add('text-teal-800');
+                if(b.id === 'btn-Lalamove') b.classList.add('text-orange-500');
+                if(b.id === 'btn-UberEats') b.classList.add('text-black');
+            });
+
             appSelecionado = nome;
-            const slug = nome.toLowerCase().replace(' ', '');
-            btn.classList.add('active-' + slug);
+            // Aplicar cor de fundo sólida no selecionado
+            btn.classList.remove('text-red-600', 'text-orange-600', 'text-amber-500', 'text-teal-800', 'text-orange-500', 'text-black');
+            btn.classList.add(brandClasses[nome]);
         }
 
         function changeView(view) {
@@ -199,15 +209,13 @@
         function registrarEntrada() {
             const num = document.getElementById('inputPedido').value;
             const nome = document.getElementById('inputNome').value;
-            if(!num || !appSelecionado || !nome) return alert("Preencha tudo!");
+            if(!num || !appSelecionado || !nome) return alert("Preencha todos os campos!");
             snd.play().then(() => { snd.pause(); snd.currentTime = 0; }).catch(() => {});
             const id = Date.now();
-            const agora = new Date();
             db.ref('fila/' + id).set({ 
                 id, pedido: num, nome, app: appSelecionado, 
                 status: 'preparando', entrada: id, 
-                hora: agora.getHours(),
-                data: agora.toISOString().split('T')[0] 
+                data: new Date().toISOString().split('T')[0] 
             });
             meuIdAtual = id;
             iniciarTelaEspera();
@@ -247,8 +255,9 @@
                 const p = snap.val();
                 if(p) {
                     const diffMs = Date.now() - p.entrada;
-                    p.minutosEspera = Math.floor(diffMs/60000);
-                    p.tempoEspera = p.minutosEspera + "m " + Math.floor((diffMs%60000)/1000) + "s";
+                    const mins = Math.round(diffMs / 60000); // Arredonda para o minuto mais próximo
+                    p.minutosEspera = mins;
+                    p.tempoEspera = Math.floor(diffMs/60000) + "m " + Math.floor((diffMs%60000)/1000) + "s";
                     db.ref('historico/' + meuIdAtual).set(p);
                     db.ref('fila/' + meuIdAtual).remove();
                 }
@@ -260,7 +269,7 @@
             db.ref('fila').on('value', (snap) => {
                 const fila = snap.val() ? Object.values(snap.val()) : [];
                 document.getElementById('lista-loja').innerHTML = fila.map(p => `
-                    <div class="p-6 rounded-3xl shadow-lg border-2 relative fade-in ${cardStyles[p.app]}">
+                    <div class="p-6 rounded-3xl shadow-lg border-2 relative fade-in ${cardClasses[p.app]}">
                         <span class="text-[10px] font-black uppercase opacity-70">${p.app}</span>
                         <h3 class="text-4xl font-black mt-1">#${p.pedido}</h3>
                         <p class="text-md font-bold mb-5 uppercase opacity-90">${p.nome}</p>
@@ -275,26 +284,25 @@
                 const hist = snap.val() ? Object.values(snap.val()) : [];
                 const filtrado = hist.filter(h => h.data === dataFiltro);
                 
-                // Cálculo de Média e Pico
+                // Cálculo de Média
                 if(filtrado.length > 0) {
                     const soma = filtrado.reduce((acc, curr) => acc + (curr.minutosEspera || 0), 0);
-                    document.getElementById('media-espera').innerHTML = Math.round(soma/filtrado.length) + '<span class="text-sm">min</span>';
-                    
-                    const horas = filtrado.map(h => h.hora);
-                    const pico = horas.sort((a,b) => horas.filter(v => v===a).length - horas.filter(v => v===b).length).pop();
-                    document.getElementById('pico-horario').innerText = pico + ":00h";
+                    const media = (soma / filtrado.length).toFixed(1);
+                    document.getElementById('media-espera').innerHTML = media + '<span class="text-xl">min</span>';
+                } else {
+                    document.getElementById('media-espera').innerHTML = '0<span class="text-xl">min</span>';
                 }
 
                 const apps = ['iFood', 'Rappi', '99 Food', 'Keeta', 'Lalamove', 'Uber Eats'];
                 document.getElementById('ranking-container').innerHTML = apps.map(nome => {
                     const qtd = filtrado.filter(x => x.app === nome).length;
-                    return `<div class="p-3 rounded-2xl border-2 text-center ${cardStyles[nome]} shadow-sm"><p class="text-[8px] font-black uppercase opacity-80">${nome}</p><p class="text-2xl font-black">${qtd}</p></div>`;
+                    return `<div class="p-3 rounded-2xl border-2 text-center ${cardClasses[nome]} shadow-sm"><p class="text-[8px] font-black uppercase opacity-80">${nome}</p><p class="text-2xl font-black">${qtd}</p></div>`;
                 }).join('');
 
-                document.getElementById('historico-lista').innerHTML = filtrado.reverse().slice(0, 5).map(h => `
+                document.getElementById('historico-lista').innerHTML = filtrado.reverse().slice(0, 10).map(h => `
                     <div class="bg-white p-3 rounded-2xl border flex justify-between items-center text-xs fade-in shadow-sm">
                         <div><p class="font-black">#${h.pedido} - ${h.nome}</p><p class="text-green-600 font-bold">Ficou: ${h.tempoEspera || '0m'}</p></div>
-                        <button onclick="deletarPedido('historico', ${h.id})" class="text-red-400 font-bold px-2">×</button>
+                        <button onclick="deletarPedido('historico', ${h.id})" class="text-red-400 font-bold px-2 text-lg">×</button>
                     </div>`).join('');
             });
         }
@@ -304,7 +312,7 @@
         function gerarQRCode() {
             const url = window.location.origin + window.location.pathname + "?v=moto";
             document.getElementById("qrcode").innerHTML = ""; document.getElementById("qrcode-print").innerHTML = "";
-            new QRCode(document.getElementById("qrcode"), { text: url, width: 80, height: 80 });
+            new QRCode(document.getElementById("qrcode"), { text: url, width: 90, height: 90 });
             new QRCode(document.getElementById("qrcode-print"), { text: url, width: 450, height: 450 });
         }
     </script>
