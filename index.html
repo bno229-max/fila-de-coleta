@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fila Digital SaaS</title>
+    <title>Fila Digital SaaS - Seguro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
@@ -11,30 +11,40 @@
 
     <style>
         body { font-family: 'Inter', sans-serif; }
-        .card-ifood, .btn-ifood { background-color: #ea1d2c; color: white; }
-        .card-rappi, .btn-rappi { background-color: #ff441f; color: white; }
-        .card-99food, .btn-99food { background-color: #ffc107; color: #4d3a00; }
-        .card-keeta, .btn-keeta { background-color: #004d40; color: white; }
-        .card-lalamove, .btn-lalamove { background-color: #f60; color: white; }
-        .card-ubereats, .btn-ubereats { background-color: #000; color: white; }
+        .card-ifood { background-color: #ea1d2c; color: white; }
+        .card-rappi { background-color: #ff441f; color: white; }
+        .card-99food { background-color: #ffc107; color: #4d3a00; }
+        .card-keeta { background-color: #004d40; color: white; }
+        .card-lalamove { background-color: #f60; color: white; }
+        .card-ubereats { background-color: #000; color: white; }
         @media print { body * { visibility: hidden; } #print-area, #print-area * { visibility: visible; } #print-area { position: absolute; left: 0; top: 0; width: 100%; display: flex !important; flex-direction: column; align-items: center; justify-content: center; height: 100vh; } }
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen">
 
     <div id="saas-landing" class="hidden fixed inset-0 bg-slate-900 z-[100] flex items-center justify-center p-6">
-        <div class="bg-white p-8 rounded-[2.5rem] max-w-sm w-full shadow-2xl text-center">
-            <h1 class="text-3xl font-black text-slate-800 mb-2">Fila Digital <span class="text-blue-600">SaaS</span></h1>
-            <p class="text-slate-500 mb-8 font-medium">Crie sua fila em 30 segundos.</p>
-            <input type="text" id="saas-store-name" placeholder="Nome da sua Loja (ex: burgertop)" class="w-full border-2 border-slate-100 p-4 rounded-2xl mb-4 outline-none focus:border-blue-500 font-bold">
-            <button onclick="criarMinhaLoja()" class="w-full bg-blue-600 text-white font-black py-4 rounded-2xl shadow-lg hover:bg-blue-700 transition">CRIAR MINHA FILA</button>
-            <p class="mt-6 text-[10px] text-slate-400 uppercase font-bold tracking-widest text-center">Versão Beta 1.0</p>
+        <div class="bg-white p-8 rounded-[2.5rem] max-w-sm w-full shadow-2xl">
+            <h1 class="text-3xl font-black text-slate-800 mb-2 text-center">Fila Digital <span class="text-blue-600">SaaS</span></h1>
+            <p class="text-slate-500 mb-8 font-medium text-center">Gerencie sua fila com segurança.</p>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="text-[10px] font-bold uppercase text-slate-400 ml-2">Identificador da Loja</label>
+                    <input type="text" id="saas-store-name" placeholder="ex: pizzariatop" class="w-full border-2 border-slate-100 p-4 rounded-2xl outline-none focus:border-blue-500 font-bold">
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold uppercase text-slate-400 ml-2">Senha de Acesso</label>
+                    <input type="password" id="saas-store-pass" placeholder="••••••" class="w-full border-2 border-slate-100 p-4 rounded-2xl outline-none focus:border-blue-500 font-bold">
+                </div>
+                <button onclick="autenticarLoja()" class="w-full bg-blue-600 text-white font-black py-4 rounded-2xl shadow-lg hover:bg-blue-700 transition">ENTRAR / CRIAR LOJA</button>
+            </div>
+            <p class="mt-6 text-[10px] text-slate-400 uppercase font-bold tracking-widest text-center">Acesso Protegido</p>
         </div>
     </div>
 
     <nav id="app-nav" class="hidden bg-white border-b border-slate-200 px-4 py-3 flex justify-between items-center shadow-sm no-print">
         <div class="flex flex-col">
-            <span id="store-display" class="font-black text-blue-600 uppercase text-[10px] tracking-widest">Loja</span>
+            <span id="store-display" class="font-black text-blue-600 uppercase text-[10px] tracking-widest">LOJA</span>
             <span class="font-black text-slate-800 uppercase text-sm">Fila de Coleta</span>
         </div>
         <div id="toggle-view" class="flex gap-1 bg-slate-100 p-1 rounded-full">
@@ -52,10 +62,9 @@
 
         <main id="view-motoboy" class="max-w-md mx-auto p-4 block no-print">
             <div id="motoboy-form" class="bg-white p-8 rounded-3xl shadow-xl mt-4">
-                <input type="number" id="inputPedido" placeholder="Nº Pedido" class="w-full bg-slate-50 border-2 p-4 rounded-2xl text-3xl font-black mb-4 outline-none">
+                <input type="number" id="inputPedido" inputmode="numeric" placeholder="Nº Pedido" class="w-full bg-slate-50 border-2 p-4 rounded-2xl text-3xl font-black mb-4 outline-none">
                 <input type="text" id="inputNome" placeholder="Seu Nome" class="w-full bg-slate-50 border-2 p-4 rounded-2xl text-xl font-bold mb-4 outline-none">
-                <div class="grid grid-cols-2 gap-2 mb-6" id="apps-grid">
-                    </div>
+                <div class="grid grid-cols-2 gap-2 mb-6" id="apps-grid"></div>
                 <button onclick="registrarEntrada()" class="w-full bg-green-600 text-white font-black py-5 rounded-2xl text-lg shadow-xl uppercase">Entrar na Fila</button>
             </div>
             
@@ -63,11 +72,11 @@
                 <div id="loja-msg-container" class="hidden bg-blue-600 text-white p-5 rounded-3xl shadow-xl text-center font-bold mb-4 relative">
                     <span id="loja-msg-texto"></span>
                 </div>
-                <div class="bg-white p-10 rounded-[2.5rem] shadow-2xl text-center">
+                <div class="bg-white p-10 rounded-[2.5rem] shadow-2xl text-center border-4 border-dashed border-slate-200">
                     <h3 id="ticket-pedido" class="text-6xl font-black text-slate-800">#0000</h3>
                     <p id="ticket-nome" class="text-xl font-bold text-slate-500"></p>
                     <p id="timer-moto" class="text-3xl font-mono font-bold text-slate-700 my-4">00:00</p>
-                    <div id="badge-status-moto" class="font-bold text-slate-500 uppercase italic">Aguardando...</div>
+                    <div id="badge-status-moto" class="font-bold text-slate-500 uppercase italic">Aguardando Cozinha...</div>
                 </div>
                 <button id="btn-finalizar" onclick="confirmarColetaFinal()" class="hidden w-full mt-6 bg-green-600 text-white font-black py-7 rounded-3xl text-3xl shadow-2xl uppercase">COLETAR</button>
             </div>
@@ -75,20 +84,20 @@
 
         <main id="view-loja" class="hidden p-6 max-w-7xl mx-auto space-y-6 no-print">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="bg-white p-6 rounded-3xl shadow-sm border text-center">
-                    <p class="text-[10px] font-black text-slate-400 uppercase">Média Hoje</p>
+                <div class="bg-white p-6 rounded-3xl shadow-sm border text-center flex flex-col justify-center">
+                    <p class="text-[10px] font-black text-slate-400 uppercase">Média de Espera Hoje</p>
                     <h2 id="media-espera" class="text-5xl font-black text-green-600">0s</h2>
                 </div>
                 <div class="bg-white p-4 rounded-3xl border flex items-center justify-between">
-                    <button onclick="window.print()" class="text-[10px] bg-slate-900 text-white font-bold py-3 px-6 rounded-full">IMPRIMIR QR</button>
-                    <div id="qrcode" class="p-1 bg-white border rounded-lg"></div>
+                    <button onclick="window.print()" class="text-[10px] bg-slate-900 text-white font-bold py-3 px-6 rounded-full uppercase">Imprimir QR</button>
+                    <div id="qrcode" class="p-1 bg-white border rounded-lg shadow-sm"></div>
                 </div>
             </div>
             <div id="lista-loja" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
         </main>
     </div>
 
-    <audio id="snd-ready" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3"></audio>
+    <audio id="snd-ready" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3" preload="auto"></audio>
 
     <script>
         const firebaseConfig = {
@@ -98,48 +107,91 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // LÓGICA SAAS: Identificar a Loja
         const urlParams = new URLSearchParams(window.location.search);
         let storeID = urlParams.get('store');
+        let isMotoView = urlParams.get('v') === 'moto';
 
+        // LÓGICA DE ACESSO
         if (!storeID) {
             document.getElementById('saas-landing').classList.remove('hidden');
+        } else if (isMotoView) {
+            // Motoboy entra direto sem senha
+            entrarNoApp();
         } else {
+            // Loja precisa de senha se não estiver na sessão
+            if (sessionStorage.getItem('auth_' + storeID)) {
+                entrarNoApp();
+            } else {
+                document.getElementById('saas-landing').classList.remove('hidden');
+            }
+        }
+
+        async function autenticarLoja() {
+            const name = document.getElementById('saas-store-name').value.toLowerCase().trim().replace(/\s+/g, '-');
+            const pass = document.getElementById('saas-store-pass').value;
+
+            if (!name || !pass) return alert("Preencha nome e senha!");
+
+            const storeRef = db.ref(`v1/config/${name}`);
+            const snapshot = await storeRef.once('value');
+            const storeData = snapshot.val();
+
+            if (!storeData) {
+                // Cria nova loja
+                if(confirm("Esta loja não existe. Deseja criá-la com esta senha?")) {
+                    await storeRef.set({ password: pass, createdAt: Date.now() });
+                    liberarAcesso(name);
+                }
+            } else {
+                // Verifica senha
+                if (storeData.password === pass) {
+                    liberarAcesso(name);
+                } else {
+                    alert("Senha incorreta!");
+                }
+            }
+        }
+
+        function liberarAcesso(name) {
+            sessionStorage.setItem('auth_' + name, 'true');
+            window.location.href = window.location.pathname + "?store=" + name;
+        }
+
+        function entrarNoApp() {
+            document.getElementById('saas-landing').classList.add('hidden');
             document.getElementById('app-nav').classList.remove('hidden');
             document.getElementById('app-content').classList.remove('hidden');
             document.getElementById('store-display').innerText = storeID;
             document.getElementById('print-store-name').innerText = storeID.toUpperCase();
-            inicializarApp();
+            inicializarFila();
         }
 
-        function criarMinhaLoja() {
-            const nome = document.getElementById('saas-store-name').value.toLowerCase().replace(/\s+/g, '-');
-            if(nome) window.location.href = window.location.pathname + "?store=" + nome;
-        }
-
-        // --- ABAIXO, A LÓGICA DE FILA ADAPTADA PARA O STOREID ---
+        // --- LÓGICA DA FILA (RESTRITA AO STOREID) ---
         let meuIdAtual = null;
         let appSelecionado = "";
 
-        function inicializarApp() {
+        function inicializarFila() {
             gerarQRCode();
-            if(urlParams.get('v') === 'moto') {
-                document.getElementById('toggle-view').style.display = 'none';
-            }
             renderAppsGrid();
+            if(isMotoView) {
+                document.getElementById('toggle-view').classList.add('hidden');
+            }
         }
 
         function renderAppsGrid() {
             const apps = ['iFood', 'Rappi', '99 Food', 'Keeta', 'Lalamove', 'Uber Eats'];
             document.getElementById('apps-grid').innerHTML = apps.map(app => 
-                `<button onclick="setApp(this, '${app}')" class="btn-brand p-3 rounded-xl font-bold border-2 text-xs">${app}</button>`
+                `<button onclick="setApp(this, '${app}')" class="btn-brand border-2 p-3 rounded-xl font-bold text-xs text-slate-600 border-slate-100 transition">${app}</button>`
             ).join('');
         }
 
         function setApp(btn, nome) {
-            document.querySelectorAll('.btn-brand').forEach(b => b.classList.remove('bg-slate-800', 'text-white'));
+            document.querySelectorAll('.btn-brand').forEach(b => {
+                b.classList.remove('bg-slate-800', 'text-white', 'border-slate-800');
+                b.classList.add('text-slate-600', 'border-slate-100');
+            });
             appSelecionado = nome;
-            btn.classList.add('bg-slate-800', 'text-white');
+            btn.classList.add('bg-slate-800', 'text-white', 'border-slate-800');
         }
 
         function changeView(view) {
@@ -171,13 +223,26 @@
                 if(p.mensagem) {
                     document.getElementById('loja-msg-container').classList.remove('hidden');
                     document.getElementById('loja-msg-texto').innerText = p.mensagem;
+                } else {
+                    document.getElementById('loja-msg-container').classList.add('hidden');
                 }
                 if(p.status === 'liberado') {
-                    document.getElementById('badge-status-moto').innerText = "✅ LIBERADO!";
+                    document.getElementById('badge-status-moto').innerText = "✅ PEDIDO LIBERADO!";
                     document.getElementById('btn-finalizar').classList.remove('hidden');
-                    document.getElementById('snd-ready').play();
+                    const audio = document.getElementById('snd-ready');
+                    audio.loop = true; audio.play();
                 }
             });
+            setInterval(() => {
+                if(meuIdAtual) {
+                    db.ref(`v1/lojas/${storeID}/fila/${meuIdAtual}`).once('value', s => {
+                        if(s.val()) {
+                            const d = Math.floor((Date.now() - s.val().entrada) / 1000);
+                            document.getElementById('timer-moto').innerText = `${Math.floor(d/60).toString().padStart(2,'0')}:${(d%60).toString().padStart(2,'0')}`;
+                        }
+                    });
+                }
+            }, 1000);
         }
 
         function confirmarColetaFinal() {
@@ -197,26 +262,24 @@
                 const fila = snap.val() ? Object.values(snap.val()) : [];
                 document.getElementById('lista-loja').innerHTML = fila.map(p => `
                     <div class="p-5 rounded-3xl shadow-lg border-2 relative bg-white border-slate-100">
-                        <button onclick="db.ref('v1/lojas/${storeID}/fila/${p.id}').remove()" class="absolute top-4 right-4 text-slate-300">×</button>
-                        <h3 class="text-3xl font-black">#${p.pedido}</h3>
-                        <p class="font-bold text-slate-500 uppercase text-xs">${p.nome} - ${p.app}</p>
-                        <div class="flex gap-2 mt-4">
-                            <button onclick="db.ref('v1/lojas/${storeID}/fila/${p.id}').update({status:'liberado'})" class="flex-1 bg-green-600 text-white py-2 rounded-xl font-bold text-[10px] uppercase">Liberar</button>
-                            <button onclick="enviarMensagem(${p.id})" class="bg-blue-100 text-blue-600 px-4 py-2 rounded-xl font-bold text-[10px]">MSG</button>
+                        <button onclick="if(confirm('Remover?')) db.ref('v1/lojas/${storeID}/fila/${p.id}').remove()" class="absolute top-4 right-4 text-slate-300 font-bold text-xl">×</button>
+                        <span class="text-[9px] font-black uppercase text-slate-400">${p.app}</span>
+                        <h3 class="text-3xl font-black text-slate-800">#${p.pedido}</h3>
+                        <p class="font-bold text-slate-500 uppercase text-xs mb-4">${p.nome}</p>
+                        <div class="flex gap-2">
+                            ${p.status === 'preparando' ? 
+                                `<button onclick="db.ref('v1/lojas/${storeID}/fila/${p.id}').update({status:'liberado'})" class="flex-1 bg-green-600 text-white py-3 rounded-xl font-bold text-[10px] uppercase">Liberar</button>` : 
+                                `<div class="flex-1 bg-slate-100 text-slate-400 py-3 rounded-xl font-bold text-center text-[10px] uppercase">Chamando...</div>`
+                            }
+                            <button onclick="enviarMensagemLivre(${p.id})" class="bg-blue-600 text-white px-4 py-3 rounded-xl font-bold text-[10px] uppercase">💬</button>
                         </div>
-                    </div>`).join('');
+                    </div>`).join('') || '<p class="text-slate-400 text-xs italic">Fila vazia...</p>';
             });
         }
 
-        function enviarMensagem(id) {
-            const msg = prompt("Digite a mensagem para o motoboy:");
-            if(msg) db.ref(`v1/lojas/${storeID}/fila/${id}`).update({mensagem: msg});
-        }
-
-        function gerarQRCode() {
-            const url = window.location.origin + window.location.pathname + "?store=" + storeID + "&v=moto";
-            new QRCode(document.getElementById("qrcode"), { text: url, width: 80, height: 80 });
-            new QRCode(document.getElementById("qrcode-print"), { text: url, width: 400, height: 400 });
+        function enviarMensagemLivre(id) {
+            const m = prompt("Mensagem para o motoboy:");
+            if(m) db.ref(`v1/lojas/${storeID}/fila/${id}`).update({mensagem: m});
         }
 
         function renderHistoricoRealtime() {
@@ -227,9 +290,17 @@
                 if(filtrado.length > 0) {
                     const soma = filtrado.reduce((acc, curr) => acc + (curr.segundosTotais || 0), 0);
                     const media = Math.round(soma / filtrado.length);
-                    document.getElementById('media-espera').innerText = media + "s";
+                    document.getElementById('media-espera').innerText = media < 60 ? media + "s" : Math.floor(media/60) + "m " + (media%60) + "s";
                 }
             });
+        }
+
+        function gerarQRCode() {
+            const url = window.location.origin + window.location.pathname + "?store=" + storeID + "&v=moto";
+            document.getElementById("qrcode").innerHTML = ""; 
+            new QRCode(document.getElementById("qrcode"), { text: url, width: 80, height: 80 });
+            document.getElementById("qrcode-print").innerHTML = ""; 
+            new QRCode(document.getElementById("qrcode-print"), { text: url, width: 450, height: 450 });
         }
     </script>
 </body>
