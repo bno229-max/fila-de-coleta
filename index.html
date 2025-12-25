@@ -10,7 +10,6 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="FilaDigital">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3063/3063822.png">
-    
     <link rel="manifest" href="data:application/manifest+json,{'name':'Fila Digital SaaS','short_name':'FilaDigital','start_url':'.','display':'standalone','background_color':'#0f172a','theme_color':'#0f172a','icons':[{'src':'https://cdn-icons-png.flaticon.com/512/3063/3063822.png','sizes':'512x512','type':'image/png'}]}">
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -160,6 +159,10 @@
                     <p id="ticket-nome" class="text-xl font-bold text-slate-400 uppercase mt-2 truncate"></p>
                     <div class="bg-slate-50 rounded-3xl p-6 mt-8">
                         <p id="timer-moto" class="text-6xl font-mono font-black text-black">00:00</p>
+                        <div id="status-moto-badge" class="mt-4 flex items-center justify-center gap-2 font-black uppercase text-[10px]">
+                            <span id="status-moto-icon">⏳</span>
+                            <span id="status-moto-text" class="text-slate-500">Aguardando Loja</span>
+                        </div>
                     </div>
                 </div>
                 <button id="btn-coletar" onclick="confirmarColetaFinal()" class="hidden w-full bg-green-600 text-white font-black py-8 rounded-[2.5rem] text-2xl shadow-2xl uppercase animate-pulse">Confirme a Coleta</button>
@@ -176,7 +179,6 @@
     <audio id="snd-ready" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3" preload="auto" loop></audio>
 
     <script>
-        // REGISTRO DE SERVICE WORKER PARA PWA
         if ('serviceWorker' in navigator) {
           navigator.serviceWorker.register('data:application/javascript,' + encodeURIComponent('self.addEventListener("fetch", function(e){})'));
         }
@@ -285,8 +287,27 @@
                 const d = s.val(); if(!d) return;
                 document.getElementById('ticket-pedido').innerText = "#" + d.pedido;
                 document.getElementById('ticket-nome').innerText = d.nome;
+                
+                // ATUALIZAÇÃO DE STATUS VISUAL DO MOTOBOY
+                const badge = document.getElementById('status-moto-text');
+                const icon = document.getElementById('status-moto-icon');
+
+                if(d.status === 'espera') {
+                    badge.innerText = "Pedido sendo preparado...";
+                    badge.className = "text-slate-500 animate-pulse";
+                    icon.innerText = "🔥";
+                }
+
                 if(d.mensagem) { document.getElementById('loja-msg-container').classList.remove('hidden'); document.getElementById('loja-msg-texto').innerText = d.mensagem; }
-                if(d.status === 'liberado') { document.getElementById('btn-coletar').classList.remove('hidden'); document.getElementById('snd-ready').play(); }
+                
+                if(d.status === 'liberado') { 
+                    document.getElementById('btn-coletar').classList.remove('hidden'); 
+                    document.getElementById('snd-ready').play();
+                    // Muda status para pronto
+                    badge.innerText = "PEDIDO PRONTO! VÁ AO BALCÃO";
+                    badge.className = "text-green-600 font-black scale-110 transition-all";
+                    icon.innerText = "✅";
+                }
             });
             setInterval(() => {
                 db.ref(`v1/lojas/${storeID}/fila/${id}`).once('value', s => {
@@ -312,15 +333,23 @@
         function renderFilaRealtime() {
             db.ref(`v1/lojas/${storeID}/fila`).on('value', s => {
                 const fila = s.val() ? Object.values(s.val()) : [];
-                document.getElementById('lista-loja').innerHTML = fila.map(p => `
+                document.getElementById('lista-loja').innerHTML = fila.map(p => {
+                    // LÓGICA DO BOTÃO "LIBERAR" NA LOJA
+                    const isLiberado = p.status === 'liberado';
+                    const btnClass = isLiberado ? "bg-blue-600 text-white" : "bg-white text-black";
+                    const btnText = isLiberado ? "Aguardando Coleta" : "Liberar";
+
+                    return `
                     <div class="p-6 rounded-[2rem] border-2 relative ${getAppColor(p.app)} shadow-xl">
                         <button onclick="db.ref('v1/lojas/${storeID}/fila/${p.id}').remove()" class="absolute top-4 right-5 text-white/50 font-black text-xl">×</button>
                         <span class="text-[9px] font-black uppercase opacity-60">${p.app}</span><h3 class="text-4xl font-black">#${p.pedido}</h3><p class="font-bold text-xs mb-5 uppercase opacity-80">${p.nome}</p>
                         <div class="flex gap-2">
-                            <button onclick="db.ref('v1/lojas/${storeID}/fila/${p.id}').update({status:'liberado'})" class="flex-1 bg-white text-black py-3 rounded-xl font-black text-[10px] uppercase">Liberar</button>
+                            <button onclick="db.ref('v1/lojas/${storeID}/fila/${p.id}').update({status:'liberado'})" class="flex-1 ${btnClass} py-3 rounded-xl font-black text-[10px] uppercase transition-all shadow-md">
+                                ${btnText}
+                            </button>
                             <button onclick="enviarMsg('${p.id}')" class="flex-1 bg-black/20 text-white py-3 rounded-xl font-black text-[10px] uppercase">Mensagem</button>
                         </div>
-                    </div>`).join('');
+                    </div>`}).join('');
             });
         }
 
@@ -338,10 +367,10 @@
                 const apps = ['iFood', 'Rappi', '99 Food', 'Keeta', 'Lalamove', 'Uber Eats'];
                 document.getElementById('ranking-container').innerHTML = apps.map(a => {
                     const q = fil.filter(x => x.app === a).length;
-                    return `<div class="${getAppColor(a)} p-5 rounded-[1.8rem] text-center"><p class="text-[8px] font-black uppercase opacity-60">${a}</p><h2 class="text-2xl font-black">${q}</h2></div>`;
+                    return `<div class="${getAppColor(a)} p-5 rounded-[1.8rem] text-center shadow-md"><p class="text-[8px] font-black uppercase opacity-60">${a}</p><h2 class="text-2xl font-black">${q}</h2></div>`;
                 }).join('');
                 document.getElementById('historico-lista').innerHTML = fil.reverse().slice(0, 8).map(x => `
-                    <div class="bg-white p-4 rounded-2xl border flex justify-between items-center text-[10px]">
+                    <div class="bg-white p-4 rounded-2xl border flex justify-between items-center text-[10px] shadow-sm">
                         <div><p class="font-black">#${x.pedido} - ${x.nome}</p><p class="text-slate-400">${Math.floor((x.segTotais||0)/60)}m espera</p></div>
                         <button onclick="db.ref('v1/lojas/${storeID}/historico/${x.id}').remove()" class="text-red-400 font-bold text-xl">×</button>
                     </div>`).join('');
