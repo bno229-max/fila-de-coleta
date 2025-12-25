@@ -238,7 +238,14 @@
             const n = document.getElementById('saas-store-name').value.toLowerCase().trim().replace(/\s+/g, '-');
             const p = document.getElementById('saas-store-pass').value;
             const s = await db.ref(`v1/config/${n}`).once('value');
-            if(s.val() && s.val().password === p) { sessionStorage.setItem('auth_'+n, 'true'); window.location.href = `?store=${n}`; }
+            if(s.val() && s.val().password === p) { 
+                sessionStorage.setItem('auth_'+n, 'true'); 
+                // Desbloqueia áudio no clique do botão de login
+                document.getElementById('snd-new').play().then(() => {
+                    document.getElementById('snd-new').pause();
+                    window.location.href = `?store=${n}`;
+                }).catch(() => { window.location.href = `?store=${n}`; });
+            }
             else alert("Erro!");
         }
 
@@ -254,21 +261,28 @@
                 changeView('loja'); 
                 renderFilaRealtime(); 
                 renderHistoricoRealtime();
-                ativarNotificacaoSonora(); // ATIVA MONITOR DE SOM
+                ativarNotificacaoSonora();
             }
             setTimeout(gerarQRCode, 500);
         }
 
-        // --- LÓGICA DE SOM DE NOTIFICAÇÃO ---
         function ativarNotificacaoSonora() {
             let initialLoad = true;
+            const audioNovo = document.getElementById('snd-new');
+
+            // Segundo nível de desbloqueio: clique em qualquer lugar da tela
+            document.body.addEventListener('click', () => {
+                audioNovo.play().then(() => { audioNovo.pause(); audioNovo.currentTime = 0; });
+            }, { once: true });
+
             db.ref(`v1/lojas/${storeID}/fila`).on('child_added', (snapshot) => {
                 if (!initialLoad) {
-                    const audio = document.getElementById('snd-new');
-                    audio.play().catch(e => console.log("Som aguardando clique"));
+                    setTimeout(() => {
+                        audioNovo.currentTime = 0;
+                        audioNovo.play().catch(e => console.log("Som bloqueado pelo navegador"));
+                    }, 200);
                 }
             });
-            // Marca fim da carga inicial para não apitar nos pedidos que já estão lá
             db.ref(`v1/lojas/${storeID}/fila`).once('value', () => { initialLoad = false; });
         }
 
