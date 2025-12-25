@@ -3,7 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fila Digital SaaS - Gestão de Coletas</title>
+    <title>Fila Digital - App</title>
+    
+    <meta name="theme-color" content="#0f172a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="FilaDigital">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3063/3063822.png">
+    
+    <link rel="manifest" href="data:application/manifest+json,{'name':'Fila Digital SaaS','short_name':'FilaDigital','start_url':'.','display':'standalone','background_color':'#0f172a','theme_color':'#0f172a','icons':[{'src':'https://cdn-icons-png.flaticon.com/512/3063/3063822.png','sizes':'512x512','type':'image/png'}]}">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
@@ -11,7 +20,7 @@
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; overflow-x: hidden; }
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
         
         .card-ifood, .btn-ifood { background-color: #ea1d2c !important; color: white !important; }
         .card-rappi, .btn-rappi { background-color: #ff441f !important; color: white !important; }
@@ -24,7 +33,6 @@
         .btn-brand:hover { transform: translateY(-2px); filter: brightness(1.1); }
         .btn-brand.active { border-color: #3b82f6; }
 
-        /* Estilo do Balão de Conversa (Foto 2) */
         .chat-bubble {
             position: relative; background: #ffffff; border: 2px solid #e2e8f0;
             border-radius: 1.5rem; padding: 1.2rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
@@ -35,10 +43,8 @@
             border-style: solid; border-color: #ffffff transparent transparent;
         }
 
-        /* Ajuste de Números Grandes (Foto 1) */
         .ticket-number { font-size: clamp(3rem, 18vw, 7rem); line-height: 0.9; word-break: break-all; }
 
-        /* Ajuste QR Code Gigante na Impressão */
         @media print { 
             body * { visibility: hidden; } 
             #print-area, #print-area * { visibility: visible; } 
@@ -48,16 +54,16 @@
         }
     </style>
 </head>
-<body class="min-h-screen">
+<body class="min-h-screen select-none">
 
     <div id="saas-landing" class="fixed inset-0 flex items-center justify-center p-6 z-[200] bg-slate-950">
         <div class="bg-white p-10 rounded-[2.5rem] max-w-sm w-full shadow-2xl text-center">
-            <h1 class="text-xl font-black text-black uppercase mb-8">Acesso Fila de Coleta</h1>
+            <h1 class="text-xl font-black text-black uppercase mb-8 tracking-tighter">Fila de Coleta</h1>
             <div class="space-y-4">
                 <input type="text" id="saas-store-name" placeholder="NOME DA LOJA" class="w-full border-2 p-4 rounded-2xl outline-none focus:border-green-600 font-bold uppercase text-center">
                 <input type="password" id="saas-store-pass" placeholder="SENHA" class="w-full border-2 p-4 rounded-2xl outline-none focus:border-green-600 font-bold text-center">
-                <button onclick="autenticarLoja()" class="w-full bg-green-600 text-white font-black py-5 rounded-2xl shadow-xl uppercase transition hover:bg-green-700">Acessar Sistema</button>
-                <button onclick="abrirAdm()" class="text-slate-400 text-[10px] font-bold uppercase mt-4 block mx-auto">Painel ADM</button>
+                <button onclick="autenticarLoja()" class="w-full bg-green-600 text-white font-black py-5 rounded-2xl shadow-xl uppercase transition hover:bg-green-700">Acessar Painel</button>
+                <button onclick="abrirAdm()" class="text-slate-400 text-[10px] font-bold uppercase mt-4 block mx-auto">Configurações ADM</button>
             </div>
         </div>
     </div>
@@ -70,23 +76,20 @@
                 <button onclick="validarAdm()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold uppercase shadow-lg">Entrar</button>
                 <button onclick="document.getElementById('adm-box').classList.add('hidden')" class="w-full mt-4 text-slate-400 text-xs font-bold uppercase">Cancelar</button>
             </div>
-
             <div id="adm-content" class="hidden space-y-8">
                 <div class="bg-slate-50 p-6 rounded-3xl border-2 border-dashed border-slate-200">
                     <h3 class="font-black uppercase text-sm mb-4 text-slate-700">Cadastrar Nova Loja</h3>
                     <div class="grid grid-cols-1 gap-3">
-                        <input type="text" id="new-store-name" placeholder="ID da Loja (ex: pizza-prime)" class="w-full p-3 rounded-xl border font-bold text-sm uppercase">
+                        <input type="text" id="new-store-name" placeholder="ID da Loja (ex: pizzaria-ze)" class="w-full p-3 rounded-xl border font-bold text-sm uppercase">
                         <input type="text" id="new-store-pass" placeholder="Definir Senha" class="w-full p-3 rounded-xl border font-bold text-sm">
-                        <button onclick="cadastrarNovaLoja()" class="bg-green-600 text-white font-black py-3 rounded-xl uppercase text-xs hover:bg-green-700">Criar Loja</button>
+                        <button onclick="cadastrarNovaLoja()" class="bg-green-600 text-white font-black py-3 rounded-xl uppercase text-xs">Criar Loja</button>
                     </div>
                 </div>
-
                 <div>
                     <h3 class="font-black uppercase text-sm mb-4 text-blue-600">Lojas Ativas</h3>
                     <div id="lista-lojas-adm" class="space-y-3"></div>
                 </div>
-
-                <button onclick="location.reload()" class="w-full bg-slate-800 text-white py-4 rounded-2xl font-black uppercase text-xs">Sair do Painel</button>
+                <button onclick="location.reload()" class="w-full bg-slate-800 text-white py-4 rounded-2xl font-black uppercase text-xs">Sair</button>
             </div>
         </div>
     </div>
@@ -101,31 +104,29 @@
                     <button onclick="changeView('motoboy')" id="nav-moto" class="px-5 py-2 rounded-full font-bold text-[10px] uppercase transition">Motoboy</button>
                     <button onclick="changeView('loja')" id="nav-loja" class="px-5 py-2 rounded-full font-bold text-[10px] uppercase transition">Painel</button>
                 </div>
-                <button onclick="fazerLogoff()" class="text-red-500 font-black text-[10px] uppercase border-l pl-4 hover:opacity-70">Sair</button>
+                <button onclick="fazerLogoff()" class="text-red-500 font-black text-[10px] uppercase border-l pl-4">Sair</button>
             </div>
         </nav>
 
         <main id="view-loja" class="p-6 max-w-7xl mx-auto space-y-8 hidden">
             <div class="grid grid-cols-2 md:grid-cols-6 gap-4" id="ranking-container"></div>
-            
             <div class="bg-white p-6 rounded-[2.5rem] shadow-sm border grid grid-cols-1 md:grid-cols-3 items-center gap-8">
                 <div class="flex items-center gap-4">
                     <div id="qrcode" class="bg-white border p-1 rounded-lg"></div>
-                    <button onclick="window.print()" class="bg-black text-white px-5 py-3 rounded-full text-[10px] font-black uppercase">Imprimir QR A4</button>
+                    <button onclick="window.print()" class="bg-black text-white px-5 py-3 rounded-full text-[10px] font-black uppercase">Imprimir QR</button>
                 </div>
                 <div class="text-center border-x border-slate-100">
                     <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tempo Médio</p>
                     <h2 id="media-espera" class="text-6xl font-black text-green-600">0s</h2>
                 </div>
                 <div class="text-right">
-                    <p class="text-[10px] font-black text-slate-400 uppercase mb-1">Filtrar Histórico</p>
-                    <input type="date" id="filtroData" onchange="renderHistoricoRealtime()" class="border-2 border-slate-50 p-3 rounded-2xl font-bold text-xs bg-slate-50 outline-none focus:border-blue-600">
+                    <p class="text-[10px] font-black text-slate-400 uppercase mb-1">Filtro</p>
+                    <input type="date" id="filtroData" onchange="renderHistoricoRealtime()" class="border-2 border-slate-50 p-3 rounded-2xl font-bold text-xs bg-slate-50">
                 </div>
             </div>
-
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
                 <div class="lg:col-span-2">
-                    <h2 class="text-xl font-black uppercase mb-4">Fila de Espera Ativa</h2>
+                    <h2 class="text-xl font-black uppercase mb-4">Fila Ativa</h2>
                     <div id="lista-loja" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
                 </div>
                 <div>
@@ -149,10 +150,9 @@
                 </div>
                 <button onclick="registrarEntrada()" class="w-full bg-green-600 text-white font-black py-7 rounded-[2rem] text-2xl uppercase shadow-xl">Entrar na Fila</button>
             </div>
-
             <div id="motoboy-status" class="hidden text-center space-y-8">
                 <div id="loja-msg-container" class="hidden chat-bubble animate-bounce">
-                    <p class="text-[9px] font-black text-blue-600 uppercase mb-1 tracking-widest">A Loja enviou:</p>
+                    <p class="text-[9px] font-black text-blue-600 uppercase mb-1">A Loja enviou:</p>
                     <span id="loja-msg-texto" class="text-xl font-black text-slate-800 leading-tight"></span>
                 </div>
                 <div class="bg-white p-8 rounded-[3rem] shadow-2xl border-4 border-slate-50">
@@ -167,7 +167,7 @@
         </main>
     </div>
 
-    <div id="print-area" class="hidden">
+    <div id="print-area" class="hidden text-center">
         <h1 style="font-size: 60px; font-weight: 900; margin-bottom: 20px;" id="print-store-name">LOJA</h1>
         <div id="qrcode-print"></div>
         <p style="font-size: 30px; font-weight: 900; text-transform: uppercase; margin-top: 30px;">Escaneie para entrar na fila</p>
@@ -176,6 +176,11 @@
     <audio id="snd-ready" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3" preload="auto" loop></audio>
 
     <script>
+        // REGISTRO DE SERVICE WORKER PARA PWA
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.register('data:application/javascript,' + encodeURIComponent('self.addEventListener("fetch", function(e){})'));
+        }
+
         const firebaseConfig = { apiKey: "AIzaSyDEm26vnxeQ_f0zUUAMBqgna__hlN1LEtc", databaseURL: "https://fila-correta-default-rtdb.firebaseio.com/" };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
@@ -185,7 +190,6 @@
         let storeID = urlParams.get('store');
         let isMoto = urlParams.get('v') === 'moto';
 
-        // --- SISTEMA ADM MASTER ---
         function abrirAdm() { document.getElementById('adm-box').classList.remove('hidden'); }
         function validarAdm() {
             if(document.getElementById('adm-pass').value === "290519") {
@@ -201,17 +205,10 @@
             for(let k in l) {
                 div.innerHTML += `
                 <div class="bg-slate-50 p-4 rounded-2xl border flex justify-between items-center">
-                    <div>
-                        <p class="font-black uppercase text-xs text-slate-800">${k}</p>
-                        <p class="text-blue-600 font-mono text-[10px] font-bold">Senha: ${l[k].password}</p>
-                    </div>
+                    <div><p class="font-black uppercase text-xs text-slate-800">${k}</p><p class="text-blue-600 font-mono text-[10px] font-bold">Senha: ${l[k].password}</p></div>
                     <div class="flex gap-2">
-                        <button onclick="editarSenhaLoja('${k}')" class="bg-white p-2 rounded-lg border text-blue-500 hover:bg-blue-50">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
-                        </button>
-                        <button onclick="removerLoja('${k}')" class="bg-white p-2 rounded-lg border text-red-500 hover:bg-red-50">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                        </button>
+                        <button onclick="editarSenhaLoja('${k}')" class="bg-white p-2 rounded-lg border text-blue-500"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg></button>
+                        <button onclick="removerLoja('${k}')" class="bg-white p-2 rounded-lg border text-red-500"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button>
                     </div>
                 </div>`;
             }
@@ -219,42 +216,27 @@
 
         async function editarSenhaLoja(loja) {
             const nova = prompt(`Defina a nova senha para ${loja}:`);
-            if(nova) {
-                await db.ref(`v1/config/${loja}`).update({password: nova});
-                alert("Senha atualizada!"); carregarLojasAdm();
-            }
+            if(nova) { await db.ref(`v1/config/${loja}`).update({password: nova}); alert("Senha atualizada!"); carregarLojasAdm(); }
         }
 
         async function removerLoja(loja) {
-            if(confirm(`ATENÇÃO: Isso apagará ${loja} e todos os seus registros. Confirmar?`)) {
-                await db.ref(`v1/config/${loja}`).remove();
-                await db.ref(`v1/lojas/${loja}`).remove();
-                alert("Loja removida!"); carregarLojasAdm();
-            }
+            if(confirm(`Excluir ${loja} permanentemente?`)) { await db.ref(`v1/config/${loja}`).remove(); await db.ref(`v1/lojas/${loja}`).remove(); carregarLojasAdm(); }
         }
 
         async function cadastrarNovaLoja() {
             const nome = document.getElementById('new-store-name').value.toLowerCase().trim().replace(/\s+/g, '-');
             const senha = document.getElementById('new-store-pass').value;
-            if(!nome || !senha) return alert("Preencha todos os campos!");
-            const check = await db.ref(`v1/config/${nome}`).once('value');
-            if(check.val()) return alert("Esse ID de loja já existe!");
+            if(!nome || !senha) return alert("Preencha tudo!");
             await db.ref(`v1/config/${nome}`).set({ password: senha });
-            alert("SUCESSO: Loja Cadastrada!");
-            document.getElementById('new-store-name').value = "";
-            document.getElementById('new-store-pass').value = "";
-            carregarLojasAdm();
+            alert("Loja Cadastrada!"); carregarLojasAdm();
         }
 
-        // --- AUTENTICAÇÃO E INÍCIO ---
         async function autenticarLoja() {
             const n = document.getElementById('saas-store-name').value.toLowerCase().trim().replace(/\s+/g, '-');
             const p = document.getElementById('saas-store-pass').value;
             const s = await db.ref(`v1/config/${n}`).once('value');
-            if(s.val() && s.val().password === p) {
-                sessionStorage.setItem('auth_'+n, 'true');
-                window.location.href = `?store=${n}`;
-            } else alert("Loja ou Senha incorretos!");
+            if(s.val() && s.val().password === p) { sessionStorage.setItem('auth_'+n, 'true'); window.location.href = `?store=${n}`; }
+            else alert("Dados incorretos!");
         }
 
         function fazerLogoff() { sessionStorage.removeItem('auth_'+storeID); window.location.href = window.location.pathname; }
@@ -283,7 +265,6 @@
             document.getElementById('print-store-name').innerText = storeID.toUpperCase();
         }
 
-        // --- LÓGICA DA FILA ---
         function setAppMoto(btn, app) {
             document.querySelectorAll('#btn-grid-moto button').forEach(b => b.classList.remove('active'));
             btn.classList.add('active'); appSel = app;
@@ -333,10 +314,8 @@
                 const fila = s.val() ? Object.values(s.val()) : [];
                 document.getElementById('lista-loja').innerHTML = fila.map(p => `
                     <div class="p-6 rounded-[2rem] border-2 relative ${getAppColor(p.app)} shadow-xl">
-                        <button onclick="db.ref('v1/lojas/${storeID}/fila/${p.id}').remove()" class="absolute top-4 right-5 text-white/50 hover:text-white font-black text-xl">×</button>
-                        <span class="text-[9px] font-black uppercase opacity-60">${p.app}</span>
-                        <h3 class="text-4xl font-black">#${p.pedido}</h3>
-                        <p class="font-bold text-xs mb-5 uppercase opacity-80">${p.nome}</p>
+                        <button onclick="db.ref('v1/lojas/${storeID}/fila/${p.id}').remove()" class="absolute top-4 right-5 text-white/50 font-black text-xl">×</button>
+                        <span class="text-[9px] font-black uppercase opacity-60">${p.app}</span><h3 class="text-4xl font-black">#${p.pedido}</h3><p class="font-bold text-xs mb-5 uppercase opacity-80">${p.nome}</p>
                         <div class="flex gap-2">
                             <button onclick="db.ref('v1/lojas/${storeID}/fila/${p.id}').update({status:'liberado'})" class="flex-1 bg-white text-black py-3 rounded-xl font-black text-[10px] uppercase">Liberar</button>
                             <button onclick="enviarMsg('${p.id}')" class="flex-1 bg-black/20 text-white py-3 rounded-xl font-black text-[10px] uppercase">Mensagem</button>
@@ -345,7 +324,7 @@
             });
         }
 
-        function enviarMsg(id) { const m = prompt("Mensagem para o Motoboy:"); if(m) db.ref(`v1/lojas/${storeID}/fila/${id}`).update({mensagem: m}); }
+        function enviarMsg(id) { const m = prompt("Mensagem:"); if(m) db.ref(`v1/lojas/${storeID}/fila/${id}`).update({mensagem: m}); }
 
         function renderHistoricoRealtime() {
             const dt = document.getElementById('filtroData').value;
@@ -359,14 +338,11 @@
                 const apps = ['iFood', 'Rappi', '99 Food', 'Keeta', 'Lalamove', 'Uber Eats'];
                 document.getElementById('ranking-container').innerHTML = apps.map(a => {
                     const q = fil.filter(x => x.app === a).length;
-                    return `<div class="${getAppColor(a)} p-5 rounded-[1.8rem] text-center shadow-sm">
-                        <p class="text-[8px] font-black uppercase opacity-60 mb-1">${a}</p>
-                        <h2 class="text-2xl font-black">${q}</h2>
-                    </div>`;
+                    return `<div class="${getAppColor(a)} p-5 rounded-[1.8rem] text-center"><p class="text-[8px] font-black uppercase opacity-60">${a}</p><h2 class="text-2xl font-black">${q}</h2></div>`;
                 }).join('');
                 document.getElementById('historico-lista').innerHTML = fil.reverse().slice(0, 8).map(x => `
-                    <div class="bg-white p-4 rounded-2xl border flex justify-between items-center shadow-sm text-[10px]">
-                        <div><p class="font-black">#${x.pedido} - ${x.nome}</p><p class="text-slate-400 font-bold">${Math.floor((x.segTotais||0)/60)}m espera</p></div>
+                    <div class="bg-white p-4 rounded-2xl border flex justify-between items-center text-[10px]">
+                        <div><p class="font-black">#${x.pedido} - ${x.nome}</p><p class="text-slate-400">${Math.floor((x.segTotais||0)/60)}m espera</p></div>
                         <button onclick="db.ref('v1/lojas/${storeID}/historico/${x.id}').remove()" class="text-red-400 font-bold text-xl">×</button>
                     </div>`).join('');
             });
