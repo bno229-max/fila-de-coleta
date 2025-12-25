@@ -79,7 +79,7 @@
                 <div class="bg-slate-50 p-6 rounded-3xl border-2 border-dashed border-slate-200">
                     <h3 class="font-black uppercase text-sm mb-4 text-slate-700">Cadastrar Nova Loja</h3>
                     <div class="grid grid-cols-1 gap-3">
-                        <input type="text" id="new-store-name" placeholder="ID da Loja (ex: pizzaria-ze)" class="w-full p-3 rounded-xl border font-bold text-sm uppercase">
+                        <input type="text" id="new-store-name" placeholder="ID da Loja" class="w-full p-3 rounded-xl border font-bold text-sm uppercase">
                         <input type="text" id="new-store-pass" placeholder="Definir Senha" class="w-full p-3 rounded-xl border font-bold text-sm">
                         <button onclick="cadastrarNovaLoja()" class="bg-green-600 text-white font-black py-3 rounded-xl uppercase text-xs">Criar Loja</button>
                     </div>
@@ -170,13 +170,14 @@
         </main>
     </div>
 
+    <audio id="snd-ready" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3" preload="auto" loop></audio>
+    <audio id="snd-new" src="https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3" preload="auto"></audio>
+
     <div id="print-area" class="hidden text-center">
         <h1 style="font-size: 60px; font-weight: 900; margin-bottom: 20px;" id="print-store-name">LOJA</h1>
         <div id="qrcode-print"></div>
         <p style="font-size: 30px; font-weight: 900; text-transform: uppercase; margin-top: 30px;">Escaneie para entrar na fila</p>
     </div>
-
-    <audio id="snd-ready" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3" preload="auto" loop></audio>
 
     <script>
         if ('serviceWorker' in navigator) {
@@ -217,20 +218,20 @@
         }
 
         async function editarSenhaLoja(loja) {
-            const nova = prompt(`Defina a nova senha para ${loja}:`);
-            if(nova) { await db.ref(`v1/config/${loja}`).update({password: nova}); alert("Senha atualizada!"); carregarLojasAdm(); }
+            const nova = prompt(`Nova senha para ${loja}:`);
+            if(nova) { await db.ref(`v1/config/${loja}`).update({password: nova}); alert("Atualizado!"); carregarLojasAdm(); }
         }
 
         async function removerLoja(loja) {
-            if(confirm(`Excluir ${loja} permanentemente?`)) { await db.ref(`v1/config/${loja}`).remove(); await db.ref(`v1/lojas/${loja}`).remove(); carregarLojasAdm(); }
+            if(confirm(`Excluir ${loja}?`)) { await db.ref(`v1/config/${loja}`).remove(); await db.ref(`v1/lojas/${loja}`).remove(); carregarLojasAdm(); }
         }
 
         async function cadastrarNovaLoja() {
             const nome = document.getElementById('new-store-name').value.toLowerCase().trim().replace(/\s+/g, '-');
             const senha = document.getElementById('new-store-pass').value;
-            if(!nome || !senha) return alert("Preencha tudo!");
+            if(!nome || !senha) return alert("Erro!");
             await db.ref(`v1/config/${nome}`).set({ password: senha });
-            alert("Loja Cadastrada!"); carregarLojasAdm();
+            alert("Sucesso!"); carregarLojasAdm();
         }
 
         async function autenticarLoja() {
@@ -238,7 +239,7 @@
             const p = document.getElementById('saas-store-pass').value;
             const s = await db.ref(`v1/config/${n}`).once('value');
             if(s.val() && s.val().password === p) { sessionStorage.setItem('auth_'+n, 'true'); window.location.href = `?store=${n}`; }
-            else alert("Dados incorretos!");
+            else alert("Erro!");
         }
 
         function fazerLogoff() { sessionStorage.removeItem('auth_'+storeID); window.location.href = window.location.pathname; }
@@ -249,8 +250,26 @@
             document.getElementById('store-display').innerText = storeID.toUpperCase();
             document.getElementById('filtroData').valueAsDate = new Date();
             if(isMoto) { document.getElementById('main-nav').style.display = 'none'; changeView('motoboy'); }
-            else { changeView('loja'); renderFilaRealtime(); renderHistoricoRealtime(); }
+            else { 
+                changeView('loja'); 
+                renderFilaRealtime(); 
+                renderHistoricoRealtime();
+                ativarNotificacaoSonora(); // ATIVA MONITOR DE SOM
+            }
             setTimeout(gerarQRCode, 500);
+        }
+
+        // --- LÓGICA DE SOM DE NOTIFICAÇÃO ---
+        function ativarNotificacaoSonora() {
+            let initialLoad = true;
+            db.ref(`v1/lojas/${storeID}/fila`).on('child_added', (snapshot) => {
+                if (!initialLoad) {
+                    const audio = document.getElementById('snd-new');
+                    audio.play().catch(e => console.log("Som aguardando clique"));
+                }
+            });
+            // Marca fim da carga inicial para não apitar nos pedidos que já estão lá
+            db.ref(`v1/lojas/${storeID}/fila`).once('value', () => { initialLoad = false; });
         }
 
         function changeView(v) {
@@ -274,7 +293,7 @@
 
         function registrarEntrada() {
             const p = document.getElementById('inputPedido').value; const n = document.getElementById('inputNome').value;
-            if(!p || !n || !appSel) return alert("Complete os dados!");
+            if(!p || !n || !appSel) return alert("Complete tudo!");
             const id = Date.now();
             db.ref(`v1/lojas/${storeID}/fila/${id}`).set({ id, pedido:p, nome:n, app:appSel, status:'espera', entrada:id, data:new Date().toISOString().split('T')[0] });
             iniciarEsperaMoto(id);
@@ -287,25 +306,19 @@
                 const d = s.val(); if(!d) return;
                 document.getElementById('ticket-pedido').innerText = "#" + d.pedido;
                 document.getElementById('ticket-nome').innerText = d.nome;
-                
-                // ATUALIZAÇÃO DE STATUS VISUAL DO MOTOBOY
                 const badge = document.getElementById('status-moto-text');
                 const icon = document.getElementById('status-moto-icon');
-
                 if(d.status === 'espera') {
                     badge.innerText = "Pedido sendo preparado...";
                     badge.className = "text-slate-500 animate-pulse";
                     icon.innerText = "🔥";
                 }
-
                 if(d.mensagem) { document.getElementById('loja-msg-container').classList.remove('hidden'); document.getElementById('loja-msg-texto').innerText = d.mensagem; }
-                
                 if(d.status === 'liberado') { 
                     document.getElementById('btn-coletar').classList.remove('hidden'); 
                     document.getElementById('snd-ready').play();
-                    // Muda status para pronto
                     badge.innerText = "PEDIDO PRONTO! VÁ AO BALCÃO";
-                    badge.className = "text-green-600 font-black scale-110 transition-all";
+                    badge.className = "text-green-600 font-black scale-110";
                     icon.innerText = "✅";
                 }
             });
@@ -334,19 +347,15 @@
             db.ref(`v1/lojas/${storeID}/fila`).on('value', s => {
                 const fila = s.val() ? Object.values(s.val()) : [];
                 document.getElementById('lista-loja').innerHTML = fila.map(p => {
-                    // LÓGICA DO BOTÃO "LIBERAR" NA LOJA
                     const isLiberado = p.status === 'liberado';
                     const btnClass = isLiberado ? "bg-blue-600 text-white" : "bg-white text-black";
                     const btnText = isLiberado ? "Aguardando Coleta" : "Liberar";
-
                     return `
                     <div class="p-6 rounded-[2rem] border-2 relative ${getAppColor(p.app)} shadow-xl">
                         <button onclick="db.ref('v1/lojas/${storeID}/fila/${p.id}').remove()" class="absolute top-4 right-5 text-white/50 font-black text-xl">×</button>
                         <span class="text-[9px] font-black uppercase opacity-60">${p.app}</span><h3 class="text-4xl font-black">#${p.pedido}</h3><p class="font-bold text-xs mb-5 uppercase opacity-80">${p.nome}</p>
                         <div class="flex gap-2">
-                            <button onclick="db.ref('v1/lojas/${storeID}/fila/${p.id}').update({status:'liberado'})" class="flex-1 ${btnClass} py-3 rounded-xl font-black text-[10px] uppercase transition-all shadow-md">
-                                ${btnText}
-                            </button>
+                            <button onclick="db.ref('v1/lojas/${storeID}/fila/${p.id}').update({status:'liberado'})" class="flex-1 ${btnClass} py-3 rounded-xl font-black text-[10px] uppercase shadow-md">${btnText}</button>
                             <button onclick="enviarMsg('${p.id}')" class="flex-1 bg-black/20 text-white py-3 rounded-xl font-black text-[10px] uppercase">Mensagem</button>
                         </div>
                     </div>`}).join('');
@@ -367,10 +376,10 @@
                 const apps = ['iFood', 'Rappi', '99 Food', 'Keeta', 'Lalamove', 'Uber Eats'];
                 document.getElementById('ranking-container').innerHTML = apps.map(a => {
                     const q = fil.filter(x => x.app === a).length;
-                    return `<div class="${getAppColor(a)} p-5 rounded-[1.8rem] text-center shadow-md"><p class="text-[8px] font-black uppercase opacity-60">${a}</p><h2 class="text-2xl font-black">${q}</h2></div>`;
+                    return `<div class="${getAppColor(a)} p-5 rounded-[1.8rem] text-center"><p class="text-[8px] font-black uppercase opacity-60">${a}</p><h2 class="text-2xl font-black">${q}</h2></div>`;
                 }).join('');
                 document.getElementById('historico-lista').innerHTML = fil.reverse().slice(0, 8).map(x => `
-                    <div class="bg-white p-4 rounded-2xl border flex justify-between items-center text-[10px] shadow-sm">
+                    <div class="bg-white p-4 rounded-2xl border flex justify-between items-center text-[10px]">
                         <div><p class="font-black">#${x.pedido} - ${x.nome}</p><p class="text-slate-400">${Math.floor((x.segTotais||0)/60)}m espera</p></div>
                         <button onclick="db.ref('v1/lojas/${storeID}/historico/${x.id}').remove()" class="text-red-400 font-bold text-xl">×</button>
                     </div>`).join('');
